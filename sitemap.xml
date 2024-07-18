@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://huowenjie.github.io/04/03/2021/opengl-sdl2/</loc>
+    
+    <lastmod>2024-07-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://huowenjie.github.io/09/30/2020/linux-gcc-opt/</loc>
     
     <lastmod>2024-07-18</lastmod>
@@ -64,6 +73,13 @@
   
   <url>
     <loc>https://huowenjie.github.io/tags/Programming/</loc>
+    <lastmod>2024-07-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://huowenjie.github.io/tags/Opengl/</loc>
     <lastmod>2024-07-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

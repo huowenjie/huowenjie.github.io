@@ -31,6 +31,33 @@
   
   
   <entry>
+    <title>Opengl3.3+ 搭配 SDL2 框架渲染</title>
+    <link href="/04/03/2021/opengl-sdl2/"/>
+    <url>/04/03/2021/opengl-sdl2/</url>
+    
+    <content type="html"><![CDATA[<p>学习 Modern Opengl 的第一步，Opengl 的教程参考 <a href="https://learnopengl-cn.github.io/">LearnOpengl</a></p><span id="more"></span><h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ol><li>首先下载 Opengl 的第三方中间件 <a href="https://glad.dav1d.de/">glad</a> 并编译；</li><li>下载 <a href="https://github.com/libsdl-org">SDL2.0</a> 并编译，现在有可能变成 SDL3.0，但是 API 调用方式应该大差不差；</li><li>当前的工程需要链接 glad（或者直接在项目中包含其源码亦可） 和 SDL 库，glad 会动态加载底层设备厂商的实现，给我们提供较新版本的 Opengl API。</li></ol><p>话不多说，代码如下（VS2015+ 建立）：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stddef.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;SDL.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;glad/glad.h&quot;</span></span><br> <br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> comment(lib, <span class="hljs-string">&quot;SDL2.lib&quot;</span>)</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> comment(lib, <span class="hljs-string">&quot;SDL2main.lib&quot;</span>)</span><br> <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SCREEN_WIDTH 800</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SCREEN_HEIGHT 600</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>　　SDL_Window *window = <span class="hljs-literal">NULL</span>;<br>　　SDL_GLContext context = <span class="hljs-literal">NULL</span>;<br>　　SDL_Event event;<br> <br>　　<span class="hljs-type">int</span> ret = <span class="hljs-number">-1</span>;<br> <br>　　<span class="hljs-keyword">if</span> (SDL_Init(SDL_INIT_VIDEO) &lt; <span class="hljs-number">0</span>) &#123;<br>　　　　<span class="hljs-keyword">return</span> ret;<br>　　&#125;<br> <br>　　SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, <span class="hljs-number">3</span>);<br>　　SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, <span class="hljs-number">3</span>);<br>　　SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);<br> <br>　　window = SDL_CreateWindow(<span class="hljs-string">&quot;SDL-OpenGL3.3&quot;</span>,<br>　　　　SDL_WINDOWPOS_UNDEFINED,<br>　　　　SDL_WINDOWPOS_UNDEFINED,<br>　　　　SCREEN_WIDTH, SCREEN_HEIGHT,<br>　　　　SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);<br> <br>　　<span class="hljs-keyword">if</span> (!window) &#123;<br>　　　　<span class="hljs-keyword">goto</span> end;<br>　　&#125;<br> <br>　　context = SDL_GL_CreateContext(window);<br>　　gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);<br> <br>　　glClearColor(<span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>, <span class="hljs-number">0.5f</span>, <span class="hljs-number">1.0f</span>);<br> <br>　　<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>　　　　<span class="hljs-keyword">while</span> (SDL_PollEvent(&amp;event)) &#123;<br>　　　　　　<span class="hljs-keyword">if</span> (event.type == SDL_QUIT) &#123;<br>　　　　　　　　<span class="hljs-keyword">goto</span> end;<br>　　　　　　&#125;;<br>　　　　&#125;<br> <br>　　　　glClear(GL_COLOR_BUFFER_BIT);<br> <br>　　　　SDL_GL_SwapWindow(window);<br>　　　　SDL_Delay(<span class="hljs-number">100</span>);<br>　　&#125;<br> <br>　　ret = <span class="hljs-number">0</span>;<br>end:<br>　　<span class="hljs-keyword">if</span> (context) &#123;<br>　　　　SDL_GL_DeleteContext(context);<br>　　&#125;<br> <br>　　<span class="hljs-keyword">if</span> (window) &#123;<br>　　　　SDL_DestroyWindow(window);<br>　　&#125;<br> <br>　　SDL_Quit();<br>　　<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    <categories>
+      
+      <category>计算机图形学</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Programming</tag>
+      
+      <tag>Opengl</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Linux GCC 常用的编译、链接选项用法说明</title>
     <link href="/09/30/2020/linux-gcc-opt/"/>
     <url>/09/30/2020/linux-gcc-opt/</url>
