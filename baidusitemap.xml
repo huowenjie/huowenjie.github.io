@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://huowenjie.github.io/09/30/2020/linux-gcc-opt/</loc>
+    <lastmod>2024-07-18</lastmod>
+  </url>
+  <url>
+    <loc>https://huowenjie.github.io/08/10/2020/linux-rpm-pkg/</loc>
+    <lastmod>2024-07-18</lastmod>
+  </url>
+  <url>
+    <loc>https://huowenjie.github.io/08/10/2020/linux-deb-pkg/</loc>
+    <lastmod>2024-07-18</lastmod>
+  </url>
+  <url>
     <loc>https://huowenjie.github.io/10/10/2022/shader-learn/</loc>
     <lastmod>2024-07-16</lastmod>
   </url>

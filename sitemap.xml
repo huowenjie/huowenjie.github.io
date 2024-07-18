@@ -2,6 +2,33 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://huowenjie.github.io/09/30/2020/linux-gcc-opt/</loc>
+    
+    <lastmod>2024-07-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://huowenjie.github.io/08/10/2020/linux-rpm-pkg/</loc>
+    
+    <lastmod>2024-07-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://huowenjie.github.io/08/10/2020/linux-deb-pkg/</loc>
+    
+    <lastmod>2024-07-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://huowenjie.github.io/about/index.html</loc>
     
     <lastmod>2024-07-16</lastmod>
@@ -29,7 +56,7 @@
 
   
   <url>
-    <loc>https://huowenjie.github.io/tags/Shader/</loc>
+    <loc>https://huowenjie.github.io/tags/Linux/</loc>
     <lastmod>2024-07-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -42,7 +69,21 @@
     <priority>0.2</priority>
   </url>
   
+  <url>
+    <loc>https://huowenjie.github.io/tags/Shader/</loc>
+    <lastmod>2024-07-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
+  
+  <url>
+    <loc>https://huowenjie.github.io/categories/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/</loc>
+    <lastmod>2024-07-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
   
   <url>
     <loc>https://huowenjie.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/</loc>

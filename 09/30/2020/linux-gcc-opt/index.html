@@ -1,0 +1,816 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/image/logo/icon.png">
+  <link rel="icon" href="/image/logo/icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="辽州小虾米">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="GCC 的命令的权威解释还是要查询官方网站，同时一些链接选项不方便在网站上查询可以利用操作系统的 man 指令来查询（比如 man ld），这里记录一些常用选项，不定时更新。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux GCC 常用的编译、链接选项用法说明">
+<meta property="og:url" content="https://huowenjie.github.io/09/30/2020/linux-gcc-opt/index.html">
+<meta property="og:site_name" content="辽州小虾米的博客">
+<meta property="og:description" content="GCC 的命令的权威解释还是要查询官方网站，同时一些链接选项不方便在网站上查询可以利用操作系统的 man 指令来查询（比如 man ld），这里记录一些常用选项，不定时更新。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-30T07:27:00.000Z">
+<meta property="article:modified_time" content="2024-07-18T03:56:36.950Z">
+<meta property="article:author" content="辽州小虾米">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Programming">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Linux GCC 常用的编译、链接选项用法说明 - 辽州小虾米的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"huowenjie.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4896352768478153" crossorigin="anonymous"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>辽州小虾米</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/background/blogback.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux GCC 常用的编译、链接选项用法说明"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        辽州小虾米
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-09-30 15:27" pubdate>
+          2020年9月30日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux GCC 常用的编译、链接选项用法说明</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>GCC 的命令的权威解释还是要查询<a target="_blank" rel="noopener" href="https://gcc.gnu.org/">官方网站</a>，同时一些链接选项不方便在网站上查询可以利用操作系统的 man 指令来查询（比如 man ld），这里记录一些常用选项，不定时更新。</p>
+<span id="more"></span>
+<h2 id="最常用的选项"><a href="#最常用的选项" class="headerlink" title="最常用的选项"></a>最常用的选项</h2><ul>
+<li><p>-o file 输出目标文件</p>
+</li>
+<li><p>-E 将源文件进行预处理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc -E test.c -o test.i<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>-S 将源文件进行汇编处理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc -S test.c -o test.s<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>-c 编译源文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc -c test.c -o test.o<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>最终链接步骤</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc test1.o test2.o test3.o -o <span class="hljs-built_in">test</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>-Wall 打开所有的警告</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc -c test.c -Wall -o <span class="hljs-built_in">test</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>-O打开优化选项</p>
+</li>
+<li><p>-O0 （默认）减少编译时间，生成 debug 级别的结果</p>
+</li>
+<li><p>-O1&#x2F;O2&#x2F;O3 优化级别逐级上升，一般 release 版本的优化等级都会采用 O2 级别</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc -c test.c -O2 -o <span class="hljs-built_in">test</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>-g 生成当前系统本地格式化的调试信息， GDB 可识别并调试</p>
+</li>
+<li><p>-ggdb 专门为 gdb 生成调试信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc test.c -o <span class="hljs-built_in">test</span> -g<br>gdb <span class="hljs-built_in">test</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>-shared 生成一个可执行文件可以动态链接的共享库，这是个链接选项，编译生成共享库的目标文件的源文件时通常需要添加编译选项 -fpic</p>
+</li>
+<li><p>-fpic 生成位置无关代码，在编译共享库的目标文件时使用，这是一个编译选项</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc -c test.c -o test.o -fpic<br>gcc -shared -o libtest.so test.o<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>-I(大写 i)  （-Idir 或者 -I dir）添加头文件搜索目录, 这是一个编译选项</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs BASH">test.c 包含 test.h, test.h 位于./inc 中<br>gcc -c test.c -o test.o -I inc<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>-l(小写L) （-llib 或者 -l lib）执行链接时的共享库名称，如当前有一个共享库 libcshare.so, 那么链接命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc test.c -o <span class="hljs-built_in">test</span> -lcshare<br>或<br>gcc test.c -o <span class="hljs-built_in">test</span> -l cshare<br></code></pre></td></tr></table></figure>
+<p>如果当前链接目录下同时存在相同名称的共享库和静态库，比如libcshare.so、libcshare.a，在不加任何选项的情况下，编译器优先选择链接共享库，除非添加-static。</p>
+</li>
+<li><p>-L （-Ldir）添加链接时共享库搜索目录；</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc test.c -o <span class="hljs-built_in">test</span> -lcshare -L/xx/xx<br></code></pre></td></tr></table></figure>
+<p>-std&#x3D; 选择适配的 C&#x2F;C++ 标准版本，可选的有 c89&#x2F;c90&#x2F;c99&#x2F;c11 等；C++有c++98&#x2F;c++11&#x2F;c++14等等。</p>
+</li>
+</ul>
+<h2 id="其他常用选项"><a href="#其他常用选项" class="headerlink" title="其他常用选项"></a>其他常用选项</h2><h3 id="依赖选项"><a href="#依赖选项" class="headerlink" title="依赖选项"></a>依赖选项</h3><ul>
+<li>-M 为 GNU make 输出显式依赖规则，包含标准库头文件及系统头文件</li>
+<li>-MM 类似于 -M, 但是只会包含当前工程的头文件依赖</li>
+<li>-MF file 把依赖结果写入到 file<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc -M test.c -Ixxx/xxx<br>gcc -MM test.c -Ixxx/xxx<br>gcc -MM test.c -Ixxx/xxx -MF test.d<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p>然后查看依赖文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs BASH"><span class="hljs-built_in">cat</span> test.d<br>test.o: test.c xxx/xxx/test.h<br></code></pre></td></tr></table></figure>
+
+<h3 id="常规符号导出选项"><a href="#常规符号导出选项" class="headerlink" title="常规符号导出选项"></a>常规符号导出选项</h3><ul>
+<li>-Wl,-Bsymbolic 优先使用本地符号, 防止链接当前共享库的应用程序中的符号覆盖当前共享库中同名的符号</li>
+<li>-Wl,-soname,libtest.so.1 设置共享库的 SONAME 为 libtest.so.1，readelf -d libtest.so 可以查看共享库的 SONAME</li>
+<li>-Wl,-rpath&#x3D;&#x2F;xxx&#x2F;xxx 设置运行时共享库搜索目录</li>
+<li>-Wl,-rpath&#x3D;. 设置运行时的共享库搜索目录优先选择当前目录</li>
+<li>-Wl,–version-script&#x3D;test.map 控制共享库的导出符号</li>
+</ul>
+<p>符号表的形式为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs BASH">VER_1 &#123;<br>　　global:<br>　　　　testApi1;<br>　　　　testApi2;<br>　　　　testApi3;<br>　　<span class="hljs-built_in">local</span>:<br>　　　　*;<br>&#125;;<br> <br>VER_2 &#123;<br>　　global:<br>　　　　test4;<br>&#125; VER_1; <span class="hljs-comment">#依赖于版本1</span><br></code></pre></td></tr></table></figure>
+
+<p>如果只需要控制符号表，可以写成如下形式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs BASH">&#123;<br>　　global:<br>　　　　testApi1;<br>　　　　testApi2;<br>　　　　testApi3;<br>　　<span class="hljs-built_in">local</span>:<br>     *;          <br>&#125;；<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>-Wl,–retain-symbols-file&#x3D;test.sym 控制静态库的导出符号</li>
+</ul>
+<p>test.sym 的格式如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs BASH">testApi1<br>testApi2<br>testApi3<br></code></pre></td></tr></table></figure>
+
+<p>创建共享库时，添加以上链接选项 可以同时控制静态库导出符号和共享库导出符号，如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc test1.o test2.o test3.o test4.o -o libtest.so -shared -Wl,--version-script=test.map,--retain-symbols-file=test.sym<br></code></pre></td></tr></table></figure>
+
+<h3 id="另一种控制符号导出的方式-fvisibility"><a href="#另一种控制符号导出的方式-fvisibility" class="headerlink" title="另一种控制符号导出的方式 -fvisibility"></a>另一种控制符号导出的方式 -fvisibility</h3><p>这里介绍另一种控制符号导出的方式 -fvisibility&#x3D;[default|internal|hidden|protected]。</p>
+<p>如果要公开你的接口或者 API，那么就需要将 <strong>attribute</strong> ((visibility (“xxxxxx”))) 放在你需要公开的结构、类或者函数声明中，然后在编译选项中增加 -fvisibility&#x3D;xxxx(可选的项有 default、internal、hidden 和 protected)。</p>
+<p>举个例子，如果编译选项中添加 -fvisibility&#x3D;hidden ，那么所有被声明为 <strong>attribute</strong> ((visibility (“hidden”))) 符号都将被隐藏，其他的应用程序或者共享库在链接本库的时候会报出类似于“对 xxx 未定义的引用……”这样的错误；如果想要导出符号，则需要给符号以 <strong>attribute</strong> ((visibility (“default”))) </p>
+<p>这样的声明，这样应用程序或者其他的共享库在链接本库时就会找到导出的符号，可以正确链接。<br>以下是伪码示例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-meta">#<span class="hljs-keyword">if</span> __GNUC__ &gt;= 4</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> EXP_DEF __attribute__ ((visibility (<span class="hljs-string">&quot;default&quot;</span>)))</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> IMP_DEF __attribute__ ((visibility (<span class="hljs-string">&quot;hidden&quot;</span>)))</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> EXP_DEF</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> IMP_DEF</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br> <br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> __cplusplus</span><br><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> &#123;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br> <br><span class="hljs-comment">// 这是 C 风格的导出函数</span><br><span class="hljs-function">EXP_DEF <span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">int</span> a)</span></span>;<br> <br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> __cplusplus</span><br>&#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br> <br><span class="hljs-comment">// C++ 导出类</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">EXP_DEF</span> person<br>&#123;<br><span class="hljs-keyword">public</span>:<br>   <span class="hljs-built_in">person</span>(<span class="hljs-type">int</span> a);<br>    ……<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对于其他选项，由于不是特别常用而且笔者精力有限，不做过多总结，读者可以查阅 gcc 的官方文档或者以下的参考资料来学习：</p>
+<p>更多参考资料，见<a target="_blank" rel="noopener" href="https://gcc.gnu.org/wiki/Visibility">官方文档</a></p>
+<h3 id="编译器字符集编码的控制"><a href="#编译器字符集编码的控制" class="headerlink" title="编译器字符集编码的控制"></a>编译器字符集编码的控制</h3><p>假设我们当前的源文件是 GBK 编码，但是我们想要让应用程序在运行时以 UTF-8 编码来显示中文，可以在编译原文件时输入以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs BASH">CFLG += -finput-charset=gbk<br>CFLG += -fexec-charset=utf-8gcc -c test.c -O2 -o <span class="hljs-built_in">test</span> $(CFLG)<br></code></pre></td></tr></table></figure>
+
+<p>这样，程序在编译时会将源文件进行转码操作，然后运行时就会将中文字符以 UTF-8 的方式来呈现。</p>
+<h3 id="应用程序和共享库间接依赖问题"><a href="#应用程序和共享库间接依赖问题" class="headerlink" title="应用程序和共享库间接依赖问题"></a>应用程序和共享库间接依赖问题</h3><p>我想经常在linux下编译应用程序的朋友必定会遇到过这样的问题：  </p>
+<blockquote>
+<p>在编译应用程序时，程序所依赖的共享库可能会依赖另一个共享库。  </p>
+</blockquote>
+<p>在没有经过适当的处理的情况下，最终链接应用程序时链接器极有可能会报出找不到依赖共享库（&#x2F;usr&#x2F;bin&#x2F;ld: warning: xxx.so, needby xxx.so, not found，try using -rpath or -rpath-link） 以及  <em><strong>未定义的引用</strong></em>（&#x2F;usr&#x2F;bin&#x2F;ld: xxx.so: undefined reference to ‘xxx’）这样的错误。</p>
+<p>现在我首先在这里复盘一下该问题，我的开发平台是 Ubuntu-Server 20.04.3 LTS-x86_64，gcc version 9.3.0。 </p>
+<p>假设当前项目有三个目标 libalib.so、libblib.so 以及可执行程序 main，它们的源文件和头文件分别为 alib.c&#x2F;alib.h、blib.c&#x2F;blib.h、main.c，其中，main 依赖于 blib，blib 依赖于 alib，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/*--------------------libalib.so--------------------*/</span><br> <br><span class="hljs-comment">/* alib.h */</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> ALIB_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ALIB_H</span><br>  <br><span class="hljs-type">int</span> <span class="hljs-title function_">afunc</span><span class="hljs-params">()</span>;<br>  <br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>  <br><span class="hljs-comment">/* alib.c */</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;alib.h&quot;</span></span><br>  <br><span class="hljs-type">int</span> <span class="hljs-title function_">afunc</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1024</span>;<br>&#125;<br>  <br><span class="hljs-comment">/*--------------------libblib.so--------------------*/</span><br>  <br><span class="hljs-comment">/* blib.h */</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> BLIB_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BLIB_H</span><br>  <br><span class="hljs-type">int</span> <span class="hljs-title function_">bfunc</span><span class="hljs-params">()</span>;<br>  <br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>  <br><span class="hljs-comment">/* blib.c */</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;alib.h&quot;</span></span><br>  <br><span class="hljs-type">int</span> <span class="hljs-title function_">bfunc</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-keyword">return</span> afunc();<br>&#125;<br>  <br><span class="hljs-comment">/*----------------------main---------------------*/</span><br>  <br><span class="hljs-comment">/* main.c */</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;blib.h&quot;</span></span><br>  <br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;b = %d\n&quot;</span>, bfunc());<br>&#125;<br>  <br><span class="hljs-comment">/*----------------------Makefile---------------------*/</span><br>  <br>CC := gcc -Wall<br>  <br>main:main.c libblib.so libalib.so<br>    $(CC) $&lt; -o $@ -lblib -L.<br>  <br>libblib.so:blib.o libalib.so<br>    $(CC) -shared -o $@ $&lt; -lalib -L.<br>  <br>blib.o:blib.c<br>    $(CC) -fPIC -c $&lt;<br>  <br>libalib.so:alib.o<br>    $(CC) -shared -o $@ $&lt; -L.<br>  <br>alib.o:alib.c<br>    $(CC) -fPIC -c $&lt;<br>  <br>.PHONY:<br>clean:<br>    rm -f *.o main *.so<br>  <br><span class="hljs-comment">/*---------------------------------------------------*/</span><br></code></pre></td></tr></table></figure>
+
+<p>编写完程序后，输入make进行编译，结果如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs BASH">gcc -Wall -fPIC -c blib.c<br>gcc -Wall -fPIC -c alib.c<br>gcc -Wall -shared -o libalib.so alib.o -L.<br>gcc -Wall -shared -o libblib.so blib.o -lalib -L.<br>gcc -Wall main.c -o main -lblib -L.<br>/usr/bin/ld: warning: libalib.so, needed by ./libblib.so, not found (try using -rpath or -rpath-link)<br>/usr/bin/ld: ./libblib.so: undefined reference to `afunc<span class="hljs-string">&#x27;</span><br><span class="hljs-string">collect2: error: ld returned 1 exit status</span><br><span class="hljs-string">make: *** [Makefile:4: main] Error 1</span><br></code></pre></td></tr></table></figure>
+
+<p>为什么会出现这个错误呢？</p>
+<p>我的理解是，链接器在链接可执行程序的时候会进行一次运行时（RUNTIME）查找，并主动按照顺序检查所依赖共享库中的符号，如果它依赖的共享库同时依赖了其他的模块，那么它会沿着这样的依赖路径一直查找下去。如果发现有符号未定义，链接器就会报错终止，所以对于我们的例子，main 调用了 bfunc，bfunc 中调用了 afunc，那么在链接生成 main 的时候，链接器必须知道 afunc 是否定义，而我们在成功生成 libalib.so 和 libblib.so 后，由于并未设定程序运行时查找路径，所以 libalib.so 找不到 libblib.so，所以 main 无法确定 afunc 是否定义，所以有了以上报错。</p>
+<p>那么如何解决该问题？方法有这么几种：</p>
+<ol>
+<li>最简单的方法就是先设置环境变量，指定运行时库目录位置，直接执行 export LD_LIBRARY_PATH&#x3D;xxx，然后再进行链接；</li>
+<li>将运行时的共享库搜索目录 &#x2F;etc&#x2F;ld.so.conf.d&#x2F; 写入一个配置文件 xxx.conf，在这个文件里指定要搜索的目录，然后执行 ldconfig，这样会将你指定的目录记录到系统全局的目录表里，任何一个共享库都会搜索你指定的目录；</li>
+<li>链接选项添加 -Wl,-unresolved-symbols&#x3D;ignore-in-shared-libs 忽略该错误，这样可以正常生成可执行程序，但是程序运行阶段依旧要解决找不到共享库的问题；</li>
+<li>采用提示的 -Wl,-rpath&#x3D;xxx 指定运行时查找路径，链接器会将该路径写到应用程序，在运行时会优先查找设定的路径；</li>
+<li>采用提示的 -Wl,-rpath-link&#x3D;xxx 指定运行时查找路径，链接器仅在链接阶段进行查找，并不会将该路径记录到应用程序；</li>
+<li>如果依赖的共享库数量较少，可以让应用程序依赖所有的直接、间接的共享库。</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/" class="category-chain-item">软件开发总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/Programming/" class="print-no-link">#Programming</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux GCC 常用的编译、链接选项用法说明</div>
+      <div>https://huowenjie.github.io/09/30/2020/linux-gcc-opt/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>辽州小虾米</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年9月30日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/10/10/2022/shader-learn/" title="Shader 编程学习之路 -- 临摹">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Shader 编程学习之路 -- 临摹</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/08/10/2020/linux-deb-pkg/" title="Linux Deb 打包流程">
+                        <span class="hidden-mobile">Linux Deb 打包流程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
