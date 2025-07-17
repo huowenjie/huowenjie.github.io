@@ -1,0 +1,730 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/image/logo/icon.png">
+  <link rel="icon" href="/image/logo/icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="辽州小虾米">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="简要介绍 X.509 证书结构，并采用 Openssl 创建一个证书对象">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Openssl 加密算法库编程精要 12 PKI 体系之 X.509 证书">
+<meta property="og:url" content="https://huowenjie.github.io/04/20/2022/openssl-tutorials12/index.html">
+<meta property="og:site_name" content="辽州小虾米的博客">
+<meta property="og:description" content="简要介绍 X.509 证书结构，并采用 Openssl 创建一个证书对象">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-20T02:55:00.000Z">
+<meta property="article:modified_time" content="2024-12-13T01:36:27.656Z">
+<meta property="article:author" content="辽州小虾米">
+<meta property="article:tag" content="Programming">
+<meta property="article:tag" content="Openssl">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Openssl 加密算法库编程精要 12 PKI 体系之 X.509 证书 - 辽州小虾米的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"huowenjie.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4896352768478153" crossorigin="anonymous"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>辽州小虾米</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/background/blogback.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Openssl 加密算法库编程精要 12 PKI 体系之 X.509 证书"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        辽州小虾米
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-20 10:55" pubdate>
+          2022年4月20日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          11 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Openssl 加密算法库编程精要 12 PKI 体系之 X.509 证书</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>简要介绍 X.509 证书结构，并采用 Openssl 创建一个证书对象</p>
+<span id="more"></span>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.openssl.org/">Openssl 官方网站</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.openssl.org/master/">Openssl 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc5280">RFC5280</a></li>
+</ol>
+<h2 id="12-1-X-509-证书简介"><a href="#12-1-X-509-证书简介" class="headerlink" title="12.1 X.509 证书简介"></a>12.1 X.509 证书简介</h2><p>X.509 是一个定义公钥证书格式的标准。它在 1988 年 7 月 3 日和 X.500 标准一同被发布。X.500 系统只被主权国家用于履行国家身份信息共享条约，而 IETF 的公钥基础设施（X.509）或 PKIX 工作组已经将该标准调整为更灵活的 Internet 组织。事实上，术语 X.509 证书通常指的是 IETF 的 X.509 v3 标准的 PKIX 证书和 CRL 配置文件，它在 RFC 5280 中指定，通常称为 PKIX for Public Key Infrastructure （X.509）。</p>
+<p>X.509 证书被用于很多网络协议，比如 TLS&#x2F;SSL，后者正是 HTTPS 协议的底层协议。X.509 证书同样可以用于其他的在线应用，比如电子签名。</p>
+<h2 id="12-2-X-509-证书相关的几个概念"><a href="#12-2-X-509-证书相关的几个概念" class="headerlink" title="12.2 X.509 证书相关的几个概念"></a>12.2 X.509 证书相关的几个概念</h2><ul>
+<li>CRL: 证书吊销列表 （Certificate Revocation Lists），这是一种分发被 CA 认定为无效证书的信息的一种方式</li>
+<li>证书路径验证算法: 证书路径算法允许中间证书签署证书，这个中间证书亦可被另外的证书签署，按着这个路径，最终到达一个信任的锚点证书（或者叫根证书）</li>
+<li>CSR: 证书签发请求 （Certificate Signing Request），是由申请人向公钥基础设施的注册机构（RA）发送的消息，目的是申请数字身份证书。</li>
+</ul>
+<h2 id="12-3-X-509-证书签发应用流程"><a href="#12-3-X-509-证书签发应用流程" class="headerlink" title="12.3 X.509 证书签发应用流程"></a>12.3 X.509 证书签发应用流程</h2><p>在 X.509 系统里，如果想要签发一个证书，首先需要为用户生成一对公私钥（基于公开密钥算法），然后创建一个保存用户基本申请信息的结构 CSR 文件，这个文件包含用户的公钥、用户的申请标识、生成的证书使用的可分辨标识 DN（Distinguished Name）以及一些 CA 要求的附加信息。完成这些步骤后，使用之前生成的用户私钥对该 CSR 文件进行签名，然后将 CSR 发送给 CA。CA 根据 CSR 的信息签发证书。</p>
+<h2 id="12-4-X-509-证书结构"><a href="#12-4-X-509-证书结构" class="headerlink" title="12.4 X.509 证书结构"></a>12.4 X.509 证书结构</h2><p>X.509 证书结构我们采用 ASN.1 来描述，如下所示，为了方便起见，每个结构的抬头注释我采用 C 标准多行注释：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * X.509 证书结构</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * tbsCertificate -- 这个对象包含了当前主体信息、颁发者信息、与主体信息绑定的公钥等信息。</span><br><span class="hljs-comment"> * signatureAlgorithm -- 签名算法标识</span><br><span class="hljs-comment"> * signatureValue -- 证书的签名值，将 tbsCertificate 对象经过 ASN.1 DER 编码然后做摘要，最后将摘要作为原文签名的结果</span><br><span class="hljs-comment"> */</span><br>Certificate ::= SEQUENCE  &#123;<br>    tbsCertificate TBSCertificate,<br>    signatureAlgorithm  AlgorithmIdentifier,<br>    signatureValue BIT STRING<br>&#125;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * 证书主体信息</span><br><span class="hljs-comment"> * version -- 版本号</span><br><span class="hljs-comment"> * serialNumber -- 证书序列号，必定是正数，由 CA 向每个证书派发，使用证书的用户（或者应用系统）必须能够处理最多 20 个字节的序列号值，</span><br><span class="hljs-comment"> *     CA 派发证书序列号时不能派发超过 20 字节的值；因为历史原因，有的 CA 可能颁发序列号是负数或者 0 的证书，应用系统应针对这个问题做</span><br><span class="hljs-comment"> *     好兼容</span><br><span class="hljs-comment"> * signature -- 签名算法标识，该表示必须和 Certificate 结构的 signatureAlgorithm 表示的算法标识保持一致</span><br><span class="hljs-comment"> * issuer -- 颁发者，代表签署和颁发本证书的机构实体，这个字段包含了非空的可辨别名称 DN</span><br><span class="hljs-comment"> * validity -- 证书有效期</span><br><span class="hljs-comment"> * subject -- 证书主题信息</span><br><span class="hljs-comment"> * subjectPublicKeyInfo -- 主体公钥信息，同时表示公钥的算法</span><br><span class="hljs-comment"> * issuerUniqueID -- 颁发者唯一ID，使用这个字段 version 必须是 2 或者 3</span><br><span class="hljs-comment"> * subjectUniqueID -- 证书主题唯一ID，使用这个字段 version 必须是 2 或者 3</span><br><span class="hljs-comment"> * extensions -- 扩展项，使用这个字段 version 必须是 3</span><br><span class="hljs-comment"> */</span><br>TBSCertificate ::= SEQUENCE  &#123;<br>    version [<span class="hljs-number">0</span>] EXPLICIT Version DEFAULT v1,<br>    serialNumber CertificateSerialNumber,<br>    signature AlgorithmIdentifier,<br>    issuer Name,<br>    validity Validity,<br>    subject Name,<br>    subjectPublicKeyInfo SubjectPublicKeyInfo,<br>    issuerUniqueID [<span class="hljs-number">1</span>] IMPLICIT UniqueIdentifier OPTIONAL, -- If present, version MUST be v2 or v3<br>    subjectUniqueID [<span class="hljs-number">2</span>] IMPLICIT UniqueIdentifier OPTIONAL, -- If present, version MUST be v2 or v3<br>    extensions [<span class="hljs-number">3</span>] EXPLICIT Extensions OPTIONAL -- If present, version MUST be v3<br>&#125;<br><br><span class="hljs-comment">/* 版本号，一个整数，目前最新的证书版本是 V3 */</span><br>Version ::= INTEGER  &#123;  v1(<span class="hljs-number">0</span>), v2(<span class="hljs-number">1</span>), v3(<span class="hljs-number">2</span>)  &#125;<br><br><span class="hljs-comment">/* 证书序列号，最多 20 个八位组的正整数 */</span><br>CertificateSerialNumber  ::=  INTEGER<br><br><span class="hljs-comment">/* 有效期 */</span><br>Validity ::= SEQUENCE &#123;<br>    notBefore Time,<br>    notAfter Time<br>&#125;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * 时间</span><br><span class="hljs-comment"> * utcTime -- UTC 时间，协调世界时</span><br><span class="hljs-comment"> * generalTime -- ASN.1 标准时间格式</span><br><span class="hljs-comment"> */</span><br>Time ::= CHOICE &#123;<br>    utcTime UTCTime,<br>    generalTime GeneralizedTime <br>&#125;<br><br><span class="hljs-comment">/* 唯一标识 */</span><br>UniqueIdentifier ::= BIT STRING<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * 和证书主题绑定的公钥信息</span><br><span class="hljs-comment"> * algorithm -- 算法 OID</span><br><span class="hljs-comment"> * subjectPublicKey -- 公钥数据</span><br><span class="hljs-comment"> */</span><br>SubjectPublicKeyInfo ::= SEQUENCE  &#123;<br>    algorithm AlgorithmIdentifier,<br>    subjectPublicKey BIT STRING<br>&#125;<br><br><span class="hljs-comment">/* 扩展项列表 */</span><br>Extensions ::= SEQUENCE SIZE (<span class="hljs-number">1.</span>.MAX) OF Extension<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * 扩展项</span><br><span class="hljs-comment"> * extnID -- 扩展项 OID</span><br><span class="hljs-comment"> * critical -- 是否是关键项</span><br><span class="hljs-comment"> * extnValue -- 关键项值</span><br><span class="hljs-comment"> */</span><br>Extension ::= SEQUENCE  &#123;<br>    extnID OBJECT IDENTIFIER,<br>    critical BOOLEAN DEFAULT FALSE,<br>    extnValue OCTET STRING<br>        -- contains the DER encoding of an ASN<span class="hljs-number">.1</span> value<br>        -- corresponding to the extension type identified<br>        -- by extnID<br>&#125;<br><br><span class="hljs-comment">/* 算法定义 */</span><br>AlgorithmIdentifier ::= SEQUENCE  &#123;<br>    algorithm OBJECT IDENTIFIER,<br>    parameters ANY DEFINED BY algorithm OPTIONAL<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="12-5-Openssl-X-509-模块简介"><a href="#12-5-Openssl-X-509-模块简介" class="headerlink" title="12.5 Openssl X.509 模块简介"></a>12.5 Openssl X.509 模块简介</h2><p>Openssl X.509 证书结构定义在 crypto&#x2F;x509.h 头文件中，而 openssl&#x2F;x509.h 头文件则是为用户引出了一系列 X509 证书相关功能的接口。因为 X509 需要进行 DER 编码，所以 Openssl 为 X509 及其成员定义了 ASN.1 的信息对象和编解码工具，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C">……<br>DECLARE_ASN1_FUNCTIONS(X509_CINF)<br>DECLARE_ASN1_FUNCTIONS(X509)<br>……<br></code></pre></td></tr></table></figure>
+
+<p>所以我们编程创建或者销毁 X.509 证书结构时要调用以下函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C">X509 *<span class="hljs-title function_">X509_new</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">X509_free</span><span class="hljs-params">(X509 *a)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>对 X.509 进行 DER 编解码则要调用以下函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">int</span> <span class="hljs-title function_">i2d_X509</span> <span class="hljs-params">(<span class="hljs-type">const</span> X509 *a, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **ppout)</span>;<br>X509 *<span class="hljs-title function_">d2i_X509</span><span class="hljs-params">(X509 **a, <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **ppin, <span class="hljs-type">long</span> length)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>为了详细了解 X.509 证书的功能和，我们从下一节开始利用 Openssl 实现一个简单的 CA 系统。以上便是本章所有内容。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" class="category-chain-item">信息安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Programming/" class="print-no-link">#Programming</a>
+      
+        <a href="/tags/Openssl/" class="print-no-link">#Openssl</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Openssl 加密算法库编程精要 12 PKI 体系之 X.509 证书</div>
+      <div>https://huowenjie.github.io/04/20/2022/openssl-tutorials12/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>辽州小虾米</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/04/20/2022/openssl-tutorials13/" title="Openssl 加密算法库编程精要 13 建立自定义 CA 01 准备工作">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Openssl 加密算法库编程精要 13 建立自定义 CA 01 准备工作</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/04/18/2022/openssl-tutorials11/" title="Openssl 加密算法库编程精要 11 PKI 体系概述">
+                        <span class="hidden-mobile">Openssl 加密算法库编程精要 11 PKI 体系概述</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,770 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/image/logo/icon.png">
+  <link rel="icon" href="/image/logo/icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="辽州小虾米">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Openssl EVP 对称加密指南">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Openssl 加密算法库编程精要 03 详解 EVP API 对称加密">
+<meta property="og:url" content="https://huowenjie.github.io/02/14/2022/openssl-tutorials03/index.html">
+<meta property="og:site_name" content="辽州小虾米的博客">
+<meta property="og:description" content="Openssl EVP 对称加密指南">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-02-14T03:47:00.000Z">
+<meta property="article:modified_time" content="2024-12-13T01:36:27.656Z">
+<meta property="article:author" content="辽州小虾米">
+<meta property="article:tag" content="Programming">
+<meta property="article:tag" content="Openssl">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Openssl 加密算法库编程精要 03 详解 EVP API 对称加密 - 辽州小虾米的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"huowenjie.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4896352768478153" crossorigin="anonymous"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>辽州小虾米</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/background/blogback.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Openssl 加密算法库编程精要 03 详解 EVP API 对称加密"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        辽州小虾米
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-02-14 11:47" pubdate>
+          2022年2月14日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Openssl 加密算法库编程精要 03 详解 EVP API 对称加密</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Openssl EVP 对称加密指南</p>
+<span id="more"></span>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.openssl.org/">Openssl 官方网站</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.openssl.org/master/">Openssl 官方文档</a></li>
+<li>《密码学原理与实践（第三版）》，Douglas R.Stinson 冯登国等译</li>
+<li>《GB&#x2F;T 32907-2016 信息安全技术 SM4 分组密码算法》</li>
+</ol>
+<h2 id="3-1-简介"><a href="#3-1-简介" class="headerlink" title="3.1 简介"></a>3.1 简介</h2><p>Openssl 提供的 EVP API 提供了高层级、相对抽象的密码加密接口，是我们最常用的 Openssl 模块之一。它提供了丰富的功能和特性：</p>
+<ul>
+<li>一系列抽象的密码接口，用户无需考虑底层复杂的实现，使用简单</li>
+<li>支持对称加密和解密操作，并且支持使用对称算法的各种常用的模式</li>
+<li>支持消息摘要算法</li>
+<li>支持非对称加解密和签名验签</li>
+<li>支持密钥派生</li>
+<li>支持生成消息认证码</li>
+</ul>
+<h2 id="3-2-EVP-API-的调用规律"><a href="#3-2-EVP-API-的调用规律" class="headerlink" title="3.2 EVP API 的调用规律"></a>3.2 EVP API 的调用规律</h2><p>我们从上一章节的内容可以知道，调用高层次的 EVP API 基本都遵循固定的规律：    </p>
+<ol>
+<li>获取算法实现</li>
+<li>创建上下文 CTX</li>
+<li>调用 EVP_***Init</li>
+<li>调用 EVP_***Update</li>
+<li>调用 EVP_***Final</li>
+<li>销毁上下文，清理资源</li>
+</ol>
+<p>虽然表面看起来确实如此，但是对于很多大部分公开密钥算法而言，由于这些算法的数学原理大相径庭，所以将它们抽象成类似对称算法和摘要算法那样形式的接口非常的困难，所以以上规律在我们使用非对称公开密钥算法时并不适用，这里各位读者需要注意，以后有机会我会对公开密钥算法的调用做专门的说明。</p>
+<h2 id="3-3-获取算法"><a href="#3-3-获取算法" class="headerlink" title="3.3 获取算法"></a>3.3 获取算法</h2><p>在 EVP API 中，和对称算法相关的接口的前缀都是 EVP_CIPHER，我从这里面挑出我认为比较常用的几个接口来说明一下。</p>
+<p>首先是获取算法接口：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/evp.h&gt;</span></span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 获取算法</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * ctx[in] -- Openssl 库上下文</span><br><span class="hljs-comment"> * algorithm[in] -- 算法名称</span><br><span class="hljs-comment"> * properties[in] -- 属性查询字符串</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * 成功找到算法，返回算法实现，否则返回 NULL</span><br><span class="hljs-comment"> */</span><br>EVP_CIPHER *<span class="hljs-title function_">EVP_CIPHER_fetch</span><span class="hljs-params">(OSSL_LIB_CTX *ctx, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *algorithm, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *properties)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 销毁算法</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * cipher[in] -- 算法实现</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">EVP_CIPHER_free</span><span class="hljs-params">(EVP_CIPHER *cipher)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>调用 EVP_CIPHER_fetch 接口第一个参数可以传 NULL，会默认采用全局库上下文。<br>使用这个接口获取算法在 Openssl 内部被称为“显式获取（Explicit fetching）”，不同于旧版本的直接指定算法实现的方式，新版本在调用 EVP_CIPHER_fetch 获取算法后，需要调用 EVP_CIPHER_free 接口来释放 EVP_CIPHER 对象。<br>调用 EVP_CIPHER_fetch 接口获取到算法实现后，我们可以通过该实现获取一系列的对称算法信息，比如密钥长度、初始向量长度、分组长度等，接口说明如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/evp.h&gt;</span></span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 获取分组长度</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * cipher[in] -- 算法实现</span><br><span class="hljs-comment"> * 返回分组长度</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">EVP_CIPHER_get_block_size</span><span class="hljs-params">(<span class="hljs-type">const</span> EVP_CIPHER *cipher)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 获取密钥长度</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * cipher[in] -- 算法实现</span><br><span class="hljs-comment"> * 返回密钥长度</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">EVP_CIPHER_get_key_length</span><span class="hljs-params">(<span class="hljs-type">const</span> EVP_CIPHER *cipher)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 获取初始化向量长度</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * cipher[in] -- 算法实现</span><br><span class="hljs-comment"> * 返回初始化向量长度</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">EVP_CIPHER_get_iv_length</span><span class="hljs-params">(<span class="hljs-type">const</span> EVP_CIPHER *cipher)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>具体的调用示例如下 – 示例1：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/evp.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;trace/trace.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>    <span class="hljs-type">int</span> klen = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">int</span> ilen = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">int</span> blen = <span class="hljs-number">0</span>;<br><br>    EVP_CIPHER *sm4 = EVP_CIPHER_fetch(<span class="hljs-literal">NULL</span>, <span class="hljs-string">&quot;SM4-CBC&quot;</span>, <span class="hljs-literal">NULL</span>);<br><br>    <span class="hljs-keyword">if</span> (!sm4) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    klen = EVP_CIPHER_get_key_length(sm4);<br>    ilen = EVP_CIPHER_get_iv_length(sm4);<br>    blen = EVP_CIPHER_get_block_size(sm4);<br><br>    TRACE(<span class="hljs-string">&quot;key len = %d, iv len = %d, block len = %d\n&quot;</span>, klen, ilen, blen);<br><br>    EVP_CIPHER_free(sm4);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">key len = 16, iv len = 16, block len = 16<br></code></pre></td></tr></table></figure>
+
+<p>可以看到我们正确获取到了 SM4 算法分组链接模式的算法信息。<br>在使用获取到的算法实现进行运算之前，我们需要获取到加密上下文 – cipher context，对应 Openssl 中则是 EVP_CIPHER_CTX 对象，创建和销毁上下文的接口说明如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/evp.h&gt;</span></span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 创建加密上下文</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * 返回加密上下文对象</span><br><span class="hljs-comment"> */</span><br>EVP_CIPHER_CTX *<span class="hljs-title function_">EVP_CIPHER_CTX_new</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 销毁加密上下文</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * ctx[in] -- 加密上下文对象</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">EVP_CIPHER_CTX_free</span><span class="hljs-params">(EVP_CIPHER_CTX *ctx)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>加密上下文相当于执行加密运算时的环境，里面维护了加解密运算时需要的临时数据，在执行加密运算初始化前，必须首先创建加密上下文，我们还是以 SM4-CBC 算法为例，先看一下完整的示例程序示例 2：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/evp.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;trace/trace.h&gt;</span></span><br> <br><span class="hljs-comment">/* 加密和解密标记 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ENCRYPT 1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECRYPT 0</span><br> <br><span class="hljs-comment">/* 定义缓冲区长度 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DATA_BUF_LEN 256</span><br> <br><span class="hljs-comment">/* 全局缓冲区 */</span><br><span class="hljs-type">static</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> DATA_BUF[DATA_BUF_LEN] = &#123; <span class="hljs-number">0</span> &#125;;<br> <br><span class="hljs-comment">/* 定义二进制数据块 */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> &#123;</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *data; <span class="hljs-comment">/* 数据首地址 */</span><br>    <span class="hljs-type">int</span> len;             <span class="hljs-comment">/* 数据长度（字节） */</span><br>&#125;;<br> <br><span class="hljs-comment">/* 加密或解密 */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">cipher</span><span class="hljs-params">(</span><br><span class="hljs-params">    EVP_CIPHER_CTX *ctx, EVP_CIPHER *cipher, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> BIN_DATA *in, <span class="hljs-keyword">struct</span> BIN_DATA *out, <span class="hljs-type">int</span> enc)</span><br>&#123;<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> key[] = &#123;<br>        <span class="hljs-number">0x01</span>, <span class="hljs-number">0x02</span>, <span class="hljs-number">0x03</span>, <span class="hljs-number">0x04</span>, <span class="hljs-number">0x05</span>, <span class="hljs-number">0x06</span>, <span class="hljs-number">0x07</span>, <span class="hljs-number">0x08</span>,<br>        <span class="hljs-number">0x09</span>, <span class="hljs-number">0x0A</span>, <span class="hljs-number">0x0B</span>, <span class="hljs-number">0x0C</span>, <span class="hljs-number">0x0D</span>, <span class="hljs-number">0x0E</span>, <span class="hljs-number">0x0F</span>, <span class="hljs-number">0x00</span><br>    &#125;;<br> <br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> iv[] = &#123;<br>        <span class="hljs-number">0x01</span>, <span class="hljs-number">0x02</span>, <span class="hljs-number">0x03</span>, <span class="hljs-number">0x04</span>, <span class="hljs-number">0x05</span>, <span class="hljs-number">0x06</span>, <span class="hljs-number">0x07</span>, <span class="hljs-number">0x08</span>,<br>        <span class="hljs-number">0x09</span>, <span class="hljs-number">0x0A</span>, <span class="hljs-number">0x0B</span>, <span class="hljs-number">0x0C</span>, <span class="hljs-number">0x0D</span>, <span class="hljs-number">0x0E</span>, <span class="hljs-number">0x0F</span>, <span class="hljs-number">0xFF</span><br>    &#125;;<br> <br>    <span class="hljs-type">int</span> padlen = <span class="hljs-number">0</span>;<br> <br>    <span class="hljs-keyword">if</span> (!ctx || !cipher || !in || !out) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br> <br>    <span class="hljs-keyword">if</span> (EVP_CipherInit_ex2(ctx, cipher, key, iv, enc, <span class="hljs-literal">NULL</span>) != <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br> <br>    <span class="hljs-keyword">if</span> (EVP_CipherUpdate(ctx, out-&gt;data, &amp;out-&gt;len, in-&gt;data, in-&gt;len) != <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br> <br>    <span class="hljs-keyword">if</span> (EVP_CipherFinal_ex(ctx, out-&gt;data + out-&gt;len, &amp;padlen) != <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br> <br>    <span class="hljs-comment">/* 计算最终长度 */</span><br>    out-&gt;len += padlen;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br> <br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>    <span class="hljs-type">char</span> data[] = <span class="hljs-string">&quot;12345678901234567890abcdefgABCDEFGIOPBNM1235678&quot;</span>;<br>    <span class="hljs-type">int</span> len = <span class="hljs-keyword">sizeof</span>(data);<br> <br>    <span class="hljs-comment">/* 原文数据 */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">in</span> =</span> &#123;<br>        (<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *)data,<br>        len<br>    &#125;;<br> <br>    <span class="hljs-comment">/* 加密缓冲区 */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">enc</span> =</span> &#123;<br>        DATA_BUF,<br>        DATA_BUF_LEN / <span class="hljs-number">2</span><br>    &#125;;<br> <br>    <span class="hljs-comment">/* 解密缓冲区 */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">dec</span> =</span> &#123;<br>        DATA_BUF + DATA_BUF_LEN / <span class="hljs-number">2</span>,<br>        DATA_BUF_LEN / <span class="hljs-number">2</span><br>    &#125;;<br> <br>    <span class="hljs-comment">/* 加密上下文 */</span><br>    EVP_CIPHER_CTX *ctx = <span class="hljs-literal">NULL</span>;<br> <br>    <span class="hljs-comment">/* 获取算法 */</span><br>    EVP_CIPHER *sm4 = EVP_CIPHER_fetch(<span class="hljs-literal">NULL</span>, <span class="hljs-string">&quot;SM4-CBC&quot;</span>, <span class="hljs-literal">NULL</span>);<br> <br>    <span class="hljs-keyword">if</span> (!sm4) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br> <br>    <span class="hljs-comment">/* 创建加密上下文 */</span><br>    ctx = EVP_CIPHER_CTX_new();<br>    <span class="hljs-keyword">if</span> (!ctx) &#123;<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br> <br>    <span class="hljs-comment">/* 加密 */</span><br>    <span class="hljs-keyword">if</span> (cipher(ctx, sm4, &amp;in, &amp;enc, ENCRYPT) != <span class="hljs-number">1</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;加密失败！\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br> <br>    <span class="hljs-comment">/* 重置上下文 */</span><br>    <span class="hljs-keyword">if</span> (EVP_CIPHER_CTX_reset(ctx) != <span class="hljs-number">1</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;上下文重置失败！\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br> <br>    <span class="hljs-comment">/* 解密 */</span><br>    <span class="hljs-keyword">if</span> (cipher(ctx, sm4, &amp;enc, &amp;dec, DECRYPT) != <span class="hljs-number">1</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;解密失败！\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br> <br>    <span class="hljs-comment">/* 打印信息 */</span><br> <br>    <span class="hljs-comment">/* 打印原文数据 */</span><br>    TRACE_BIN(<span class="hljs-string">&quot;原文数据&quot;</span>, in.data, in.len);<br>     <br>    <span class="hljs-comment">/* 打印加密数据 */</span><br>    TRACE_BIN(<span class="hljs-string">&quot;加密数据&quot;</span>, enc.data, enc.len);<br> <br>    <span class="hljs-comment">/* 打印解密数据 */</span><br>    TRACE_BIN(<span class="hljs-string">&quot;解密数据&quot;</span>, dec.data, dec.len);<br><br>end:<br>    <span class="hljs-keyword">if</span> (ctx) &#123;<br>        EVP_CIPHER_CTX_free(ctx);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (sm4) &#123;<br>        EVP_CIPHER_free(sm4);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里我们单独定义了一个名为 cipher 的函数，cipher 函数中首先定义了密钥 key 和初始化向量 iv，这里我提供几个生成 key 和 iv 的方法：</p>
+<ol>
+<li>拍脑门随机想两个对应长度的值</li>
+<li>直接调用随机数生成器 RAND_bytes 生成两个对应的长度的值</li>
+<li>创建 EVP_CIPHER_CTX 后，调用 EVP_CIPHER_CTX_rand_key 接口生成随机密钥， iv 可以采用 1 或者 2 的方式生成</li>
+</ol>
+<p>我们采用第一种方法… 然后分别调用了 EVP_CipherInit_ex2、EVP_CipherUpdate 和 EVP_CipherFinal_ex 三个接口来完成对称加密解密操作，这三个接口定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/evp.h&gt;</span></span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 分组加解密初始化</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * ctx[in] -- 加密上下文</span><br><span class="hljs-comment"> * type[in] -- 算法实现</span><br><span class="hljs-comment"> * key[in] -- 对称密钥</span><br><span class="hljs-comment"> * iv[in] -- 初始化向量</span><br><span class="hljs-comment"> * enc[in] -- 加密或者解密标志，传 1 为加密，传 0 为解密</span><br><span class="hljs-comment"> * params[in] -- 扩展参数</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * 调用成功，返回 1，否则返回 0</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">EVP_CipherInit_ex2</span><span class="hljs-params">(</span><br><span class="hljs-params">    EVP_CIPHER_CTX *ctx,</span><br><span class="hljs-params">    <span class="hljs-type">const</span> EVP_CIPHER *type,</span><br><span class="hljs-params">    <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *key,</span><br><span class="hljs-params">    <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *iv,</span><br><span class="hljs-params">    <span class="hljs-type">int</span> enc,</span><br><span class="hljs-params">    <span class="hljs-type">const</span> OSSL_PARAM params[]</span><br><span class="hljs-params">)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 分组加解密</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * ctx[in] -- 加密上下文</span><br><span class="hljs-comment"> * out[out] -- 存放加密或者解密结果的内存首地址</span><br><span class="hljs-comment"> * outl[out] -- 结果长度</span><br><span class="hljs-comment"> * in[in] -- 存放原文数据的内存首地址</span><br><span class="hljs-comment"> * inl[in] -- 原文数据长度</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * 调用成功，返回 1，否则返回 0</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">EVP_CipherUpdate</span><span class="hljs-params">(</span><br><span class="hljs-params">    EVP_CIPHER_CTX *ctx,</span><br><span class="hljs-params">    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *out,</span><br><span class="hljs-params">    <span class="hljs-type">int</span> *outl,</span><br><span class="hljs-params">    <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *in,</span><br><span class="hljs-params">    <span class="hljs-type">int</span> inl</span><br><span class="hljs-params">)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 加解密收尾</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * ctx[in] -- 加密上下文对象</span><br><span class="hljs-comment"> * outm[out] -- 存放剩余加密或者解密结果的内存首地址</span><br><span class="hljs-comment"> * outl[out] -- 收尾时处理的数据长度</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * 调用成功，返回 1，否则返回 0</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">EVP_CipherFinal_ex</span><span class="hljs-params">(EVP_CIPHER_CTX *ctx, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *outm, <span class="hljs-type">int</span> *outl)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>可以参考之前的示例 2，在 cipher 函数中，我们通过对 EVP_CipherInit_ex2 的 enc 参数传入不同的值来控制程序的逻辑是加密还是解密，而且对于加解密所需要的密钥和初始化向量（如果算法模式是 ECB 模式则为 NULL）也是在调用该接口传入。</p>
+<p>默认情况下，Openssl 会对原文的数据进行 PKCS7 填充以满足加密算法的应用需求。大多数的分组加密算法的块长度都是 8 字节或者是 16 字节，在加密数据之前，如果原文长度不是分组长度的整数倍，那么就需要用当前缺失的字节数来作为填充内容，填充至原文末尾，直至原文的长度为加密块长度的整数倍；如果当前原文长度恰好为加密块的整数倍，那么仍然需要在原文后添加一个块长度的填充数据，以该块长度作为填充内容。为了演示填充操作，我们将示例 2 的程序稍加修改，如下示例 3 所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs C">……（同示例<span class="hljs-number">2</span>）<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>    <span class="hljs-type">char</span> data[] = <span class="hljs-string">&quot;12345678901234567890abcdefgABCDEFGIOPBNM1235678&quot;</span>;<br>    <span class="hljs-type">int</span> len = <span class="hljs-keyword">sizeof</span>(data);<br><br>    <span class="hljs-comment">/* 原文数据 */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">in</span> =</span> &#123;<br>        (<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *)data,<br>        len<br>    &#125;;<br><br>    <span class="hljs-comment">/* 加密缓冲区 */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">enc</span> =</span> &#123;<br>        DATA_BUF,<br>        DATA_BUF_LEN / <span class="hljs-number">2</span><br>    &#125;;<br><br>    <span class="hljs-comment">/* 解密缓冲区 */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">dec</span> =</span> &#123;<br>        DATA_BUF + DATA_BUF_LEN / <span class="hljs-number">2</span>,<br>        DATA_BUF_LEN / <span class="hljs-number">2</span><br>    &#125;;<br><br>    <span class="hljs-comment">/* 加密上下文 */</span><br>    EVP_CIPHER_CTX *ctx = <span class="hljs-literal">NULL</span>;<br><br>    <span class="hljs-comment">/* 获取算法 */</span><br>    EVP_CIPHER *sm4 = EVP_CIPHER_fetch(<span class="hljs-literal">NULL</span>, <span class="hljs-string">&quot;SM4-CBC&quot;</span>, <span class="hljs-literal">NULL</span>);<br><br>    <span class="hljs-keyword">if</span> (!sm4) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    <span class="hljs-comment">/* 创建加密上下文 */</span><br>    ctx = EVP_CIPHER_CTX_new();<br>    <span class="hljs-keyword">if</span> (!ctx) &#123;<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    <span class="hljs-comment">/* 加密 */</span><br>    <span class="hljs-keyword">if</span> (cipher(ctx, sm4, &amp;in, &amp;enc, ENCRYPT) != <span class="hljs-number">1</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;加密失败！\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    <span class="hljs-comment">/* 重置上下文 */</span><br>    <span class="hljs-keyword">if</span> (EVP_CIPHER_CTX_reset(ctx) != <span class="hljs-number">1</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;上下文重置失败！\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    <span class="hljs-comment">/* 取消填充 */</span><br>    EVP_CIPHER_CTX_set_padding(ctx, <span class="hljs-number">0</span>);<br><br>    <span class="hljs-comment">/* 解密 */</span><br>    <span class="hljs-keyword">if</span> (cipher(ctx, sm4, &amp;enc, &amp;dec, DECRYPT) != <span class="hljs-number">1</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;解密失败！\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    ……（以下内容同示例 <span class="hljs-number">2</span>）<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运算结果为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs BASH">原文数据 size:48<br>------------------------+------------------------<br>31 32 33 34 35 36 37 38 | 39 30 31 32 33 34 35 36<br>37 38 39 30 61 62 63 64 | 65 66 67 41 42 43 44 45<br>46 47 49 4f 50 42 4e 4d | 31 32 33 35 36 37 38 00<br>------------------------+------------------------<br>加密数据 size:64<br>------------------------+------------------------<br>7a 7b 69 88 23 12 70 e7 | f0 d9 48 d9 dc 94 68 cf<br>01 19 d2 d4 92 3f f6 2f | dc 30 a6 b5 d7 b7 f2 47<br>87 eb 7b 08 a1 4d c2 f1 | d2 f5 28 c3 d2 2a e1 44<br>77 16 70 d5 3c ce d6 7f | 20 fb 78 45 b4 ea f8 78<br>------------------------+------------------------<br>解密数据 size:64<br>------------------------+------------------------<br>31 32 33 34 35 36 37 38 | 39 30 31 32 33 34 35 36<br>37 38 39 30 61 62 63 64 | 65 66 67 41 42 43 44 45<br>46 47 49 4f 50 42 4e 4d | 31 32 33 35 36 37 38 00<br>10 10 10 10 10 10 10 10 | 10 10 10 10 10 10 10 10<br>------------------------+------------------------<br></code></pre></td></tr></table></figure>
+
+<p>我们在这里使用了名为 EVP_CIPHER_CTX_set_padding 的函数，这个函数的作用是启用和禁用填充。在调用加密原文数据之后，我们禁用填充，那么解密的时候就会将填充数据打印出来（默认情况下解密时会反填充恢复数据，但是禁用填充功能后则不做任何操作直接输出解密数据），我们可以看到填充长度等于 SM4加密块长度，均为 16 字节，填充内容也是 0x10。</p>
+<p>以上是加密原文恰好是 48 字节的情况，然后我们将 data 的内容改为 “12345678901234567890abcdefgABCDEFGIOPBNM12356789”，包含‘\0’ 的情况下恰好 49 个字节，然后运行程序，结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs BASH">原文数据 size:49<br>------------------------+------------------------<br>31 32 33 34 35 36 37 38 | 39 30 31 32 33 34 35 36<br>37 38 39 30 61 62 63 64 | 65 66 67 41 42 43 44 45<br>46 47 49 4f 50 42 4e 4d | 31 32 33 35 36 37 38 39<br>00 <br>------------------------+------------------------<br>加密数据 size:64<br>------------------------+------------------------<br>7a 7b 69 88 23 12 70 e7 | f0 d9 48 d9 dc 94 68 cf<br>01 19 d2 d4 92 3f f6 2f | dc 30 a6 b5 d7 b7 f2 47<br>1e eb b0 4c 16 6a 1f 7b | ca <span class="hljs-built_in">fc</span> <span class="hljs-built_in">dd</span> e8 ed f5 8d 07<br>52 a9 42 5b de 37 72 70 | d9 57 64 5d 26 15 0e 95<br>------------------------+------------------------<br>解密数据 size:64<br>------------------------+------------------------<br>31 32 33 34 35 36 37 38 | 39 30 31 32 33 34 35 36<br>37 38 39 30 61 62 63 64 | 65 66 67 41 42 43 44 45<br>46 47 49 4f 50 42 4e 4d | 31 32 33 35 36 37 38 39<br>00 0f 0f 0f 0f 0f 0f 0f | 0f 0f 0f 0f 0f 0f 0f 0f<br>------------------------+------------------------<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到 Openssl 自动在原文数据的末尾填充了 15 个 0x0F，恰好是原文长度和分组长度整数倍（4 倍 64 字节）的差值。</p>
+<p>以上是我们对常用的分组密码算法 API 的讨论，在实际生产环境中，应该根据自己的项目的需求选择不同的分组密码模式，对我来说一般在加密较小的数据或者密钥时直接采用 ECB 模式，简单快捷，加密大一点的文件或者数据时采用 CBC 模式。CFB、OFB和 CTR 等模式笔者基本没有接触或者使用过，这里不做讨论。<br>以上就是本章的内容，下一章我们将讨论摘要算法。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" class="category-chain-item">信息安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Programming/" class="print-no-link">#Programming</a>
+      
+        <a href="/tags/Openssl/" class="print-no-link">#Openssl</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Openssl 加密算法库编程精要 03 详解 EVP API 对称加密</div>
+      <div>https://huowenjie.github.io/02/14/2022/openssl-tutorials03/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>辽州小虾米</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年2月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/02/14/2022/openssl-tutorials04/" title="Openssl 加密算法库编程精要 04 详解 EVP API 消息摘要">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Openssl 加密算法库编程精要 04 详解 EVP API 消息摘要</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/02/14/2022/openssl-tutorials02/" title="Openssl 加密算法库编程精要 02 加密一段数据吧！">
+                        <span class="hidden-mobile">Openssl 加密算法库编程精要 02 加密一段数据吧！</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

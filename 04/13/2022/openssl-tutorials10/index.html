@@ -1,0 +1,769 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/image/logo/icon.png">
+  <link rel="icon" href="/image/logo/icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="辽州小虾米">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="自定义 ASN.1 编码类型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Openssl 加密算法库编程精要 10 ASN.1 模块攻略，DER 编解码">
+<meta property="og:url" content="https://huowenjie.github.io/04/13/2022/openssl-tutorials10/index.html">
+<meta property="og:site_name" content="辽州小虾米的博客">
+<meta property="og:description" content="自定义 ASN.1 编码类型">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-13T08:44:00.000Z">
+<meta property="article:modified_time" content="2024-12-13T01:36:27.656Z">
+<meta property="article:author" content="辽州小虾米">
+<meta property="article:tag" content="Programming">
+<meta property="article:tag" content="Openssl">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Openssl 加密算法库编程精要 10 ASN.1 模块攻略，DER 编解码 - 辽州小虾米的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"huowenjie.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4896352768478153" crossorigin="anonymous"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>辽州小虾米</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/background/blogback.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Openssl 加密算法库编程精要 10 ASN.1 模块攻略，DER 编解码"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        辽州小虾米
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-13 16:44" pubdate>
+          2022年4月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Openssl 加密算法库编程精要 10 ASN.1 模块攻略，DER 编解码</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>自定义 ASN.1 编码类型</p>
+<span id="more"></span>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.openssl.org/">Openssl 官方网站</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.openssl.org/master/">Openssl 官方文档</a></li>
+<li>《GB&#x2F;T 35276-2017 信息安全技术 SM2 密码算法使用规范》</li>
+</ol>
+<h2 id="10-1-Openssl-ASN-1-编解码工具"><a href="#10-1-Openssl-ASN-1-编解码工具" class="headerlink" title="10.1 Openssl ASN.1 编解码工具"></a>10.1 Openssl ASN.1 编解码工具</h2><p>Openssl 的编解码工具主要主要包含在 asn1.h 和 asn1t.h 这两个头文件里。对于每一个 ASN.1 类型，Openssl 都会为其定义5个函数，我在这里称其为编解码工具函数，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/* ASN1 对象的创建和销毁 */</span><br><span class="hljs-keyword">extern</span> TYPE *<span class="hljs-title function_">TYPE_new</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">TYPE_free</span><span class="hljs-params">(TYPE *a)</span>;<br><br><span class="hljs-comment">/* DER 解码 */</span><br><span class="hljs-keyword">extern</span> TYPE *<span class="hljs-title function_">d2i_TYPE</span><span class="hljs-params">(TYPE **a, <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **in, <span class="hljs-type">long</span> len)</span>;<br><br><span class="hljs-comment">/* DER 编码 */</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> <span class="hljs-title function_">i2d_TYPE</span><span class="hljs-params">(<span class="hljs-type">const</span> TYPE *a, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **out)</span>;<br><br><span class="hljs-comment">/* 编码对象结构的引用 */</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">const</span> ASN1_ITEM * <span class="hljs-title function_">TYPE_it</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>为了方便使用，Openssl 在 asn1.h 头文件中提供了 “DECLARE_ASN1_FUNCTIONS” 宏来快速声明以上 5 个函数，同样的，Openssl 也提供了快速定义这 5 个函数的宏模板 “IMPLEMENT_ASN1_FUNCTION”，这个宏定义在 asn1t.h 头文件中，它可以处理大部分自定义 ASN.1 的数据类型。当然，对于基本 ASN.1 数据类型，比如 ASN1_OBJECT、ASN1_INTEGER 、ASN1_OCTET_STRING 等，Openssl 并不一定完全按照这套模板来定义，比如 ASN1_OBJECT 类型的编解码工具是直接定义在 crypto&#x2F;asn1&#x2F;a_object.c 文件中；而 ASN1_INTEGER 类型的编解码工具则是定义在 crypto&#x2F;asn1&#x2F;tasn_typ.c 文件中，而且它并没有直接调用 IMPLEMENT_ASN1_FUNCTION 宏。</p>
+<p>asn1.h 头文件里声明了绝大多数的基础 ASN.1 数据类型的编解码工具函数；asn1t.h 则是定义了构建 ASN.1 编解码工具的模板。我们以 ASN1_INTEGER 类型为例，Openssl 给 ASN1_INTEGER 类型内置了一组编解码工具，它的声明如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C">DECLARE_ASN1_FUNCTIONS(ASN1_INTEGER)<br></code></pre></td></tr></table></figure>
+
+<p>为了程序的可扩展性或者某些历史原因（笔者猜测），“DECLARE_ASN1_FUNCTIONS” 宏嵌套了大量其他的宏定义，为了理清它的预处理流程，我们将 “DECLARE_ASN1_FUNCTIONS” 宏定义按顺序列举在下面：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/* 声明编解码函数 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_ASN1_FUNCTIONS(type) DECLARE_ASN1_FUNCTIONS_attr(extern, type)</span><br><br><span class="hljs-comment">/* 函数前添加属性关键字 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_ASN1_FUNCTIONS_attr(attr, type) DECLARE_ASN1_FUNCTIONS_name_attr(attr, type, type)</span><br><br><span class="hljs-comment">/* 分开声明内存管理和编解码函数 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_ASN1_FUNCTIONS_name_attr(attr, type, name) \</span><br><span class="hljs-meta">    DECLARE_ASN1_ALLOC_FUNCTIONS_name_attr(attr, type, name) \</span><br><span class="hljs-meta">    DECLARE_ASN1_ENCODE_FUNCTIONS_name_attr(attr, type, name)</span><br><br><span class="hljs-comment">/* 按照类型名称声明内存管理工具 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_ASN1_ALLOC_FUNCTIONS_name_attr(attr, type, name) \</span><br><span class="hljs-meta">    attr type *name##_new(void); \</span><br><span class="hljs-meta">    attr void name##_free(type *a);</span><br><br><span class="hljs-comment">/* 按照名称声明编解码工具 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_ASN1_ENCODE_FUNCTIONS_name_attr(attr, type, name) \</span><br><span class="hljs-meta">    DECLARE_ASN1_ENCODE_FUNCTIONS_attr(attr, type, name, name)</span><br><br><span class="hljs-comment">/* 分开声明 ASN1 类型对象和编解码工具函数 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_ASN1_ENCODE_FUNCTIONS_attr(attr, type, itname, name) \</span><br><span class="hljs-meta">    DECLARE_ASN1_ENCODE_FUNCTIONS_only_attr(attr, type, name) \</span><br><span class="hljs-meta">    DECLARE_ASN1_ITEM_attr(attr, itname)</span><br><br><span class="hljs-comment">/* 编解码工具 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_ASN1_ENCODE_FUNCTIONS_only_attr(attr, type, name) \</span><br><span class="hljs-meta">    attr type *d2i_##name(type **a, const unsigned char **in, long len); \</span><br><span class="hljs-meta">    attr int i2d_##name(const type *a, unsigned char **out);</span><br><br><span class="hljs-comment">/* ASN1_ITEM 对象 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_ASN1_ITEM_attr(attr, name) \</span><br><span class="hljs-meta">    attr const ASN1_ITEM * name##_it(void);</span><br></code></pre></td></tr></table></figure>
+
+<p>我们指定 “DECLARE_ASN1_FUNCTIONS” 的宏参数是 ASN1_INTEGER，经过一系列展开，我们最终会得到如下的函数声明：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/* ASN1 对象的创建和销毁 */</span><br><span class="hljs-keyword">extern</span> ASN1_INTEGER *<span class="hljs-title function_">ASN1_INTEGER_new</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">ASN1_INTEGERT_free</span><span class="hljs-params">(ASN1_INTEGER *a)</span>;<br><br><span class="hljs-comment">/* DER 解码 */</span><br><span class="hljs-keyword">extern</span> ASN1_INTEGER *<span class="hljs-title function_">d2i_ASN1_INTEGER</span><span class="hljs-params">(ASN1_INTEGER **a, <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **in, <span class="hljs-type">long</span> len)</span>;<br><br><span class="hljs-comment">/* DER 编码 */</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> <span class="hljs-title function_">i2d_ASN1_INTEGER</span><span class="hljs-params">(<span class="hljs-type">const</span> ASN1_INTEGER *a, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **out)</span>;<br><br><span class="hljs-comment">/* 编码对象结构的引用 */</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">const</span> ASN1_ITEM * <span class="hljs-title function_">ASN1_INTEGER_it</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>由此可见，我们通过调用 “DECLARE_ASN1_FUNCTIONS” 宏得到了对象的编解码声明，我们前面提到，ASN1_INTEGER 编解码工具的实现并没有直接调用 “IMPLEMENT_ASN1_FUNCTION” 宏，而是调用了“IMPLEMENT_ASN1_STRING_FUNCTIONS” 宏，它定义于 Openssl 源码目录下面 crypto&#x2F;asn1&#x2F;tasn_typ.c（不同版本的 Openssl 可能位置不同）文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">define</span> IMPLEMENT_ASN1_STRING_FUNCTIONS(sname) \</span><br><span class="hljs-meta">    IMPLEMENT_ASN1_TYPE(sname) \</span><br><span class="hljs-meta">    IMPLEMENT_ASN1_ENCODE_FUNCTIONS_fname(sname, sname, sname) \</span><br><span class="hljs-meta">    sname *sname##_new(void) \</span><br><span class="hljs-meta">    &#123; \</span><br><span class="hljs-meta">        return ASN1_STRING_type_new(V_##sname); \</span><br><span class="hljs-meta">    &#125; \</span><br><span class="hljs-meta">    void sname##_free(sname *x) \</span><br><span class="hljs-meta">    &#123; \</span><br><span class="hljs-meta">        ASN1_STRING_free(x); \</span><br><span class="hljs-meta">    &#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>从这个 “IMPLEMENT_ASN1_STRING_FUNCTIONS” 宏可以看出它直接定义了一组内存管理函数，通过调用 ASN1_STRING_type_new 和 ASN1_STRING_free 来实现；同时，“IMPLEMENT_ASN1_STRING_FUNCTIONS” 宏首先通过调用 “IMPLEMENT_ASN1_TYPE” 定义了 TYPE_it 函数，“IMPLEMENT_ASN1_TYPE” 宏位于 asn1t.h 头文件中，和声明函数一样，它逐级展开后会定义一个名为 ASN1_INTEGER_it 的函数，函数返回 ASN1_ITEM *，ASN1_ITEM 是一个结构体，我们先看一下 ASN1_ITEM 的结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ASN1_ITEM_st</span> &#123;</span><br>    <span class="hljs-type">char</span> itype;<br>    <span class="hljs-type">long</span> utype;<br>    <span class="hljs-type">const</span> ASN1_TEMPLATE *templates;<br>    <span class="hljs-type">long</span> tcount;<br>    <span class="hljs-type">const</span> <span class="hljs-type">void</span> *funcs; <br>    <span class="hljs-type">long</span> size;<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span> *sname;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>从以上 ASN1_ITEM 的结构可以看出，ASN1_ITEM 主要用于标记当前定义的 ASN.1 类型的基本信息，明确了它的功能，然后我们分析一下 “IMPLEMENT_ASN1_TYPE” 宏的展开过程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/* type_it 函数前半部分 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ASN1_ITEM_start(itname) \</span><br><span class="hljs-meta">    const ASN1_ITEM * itname##_it(void) \</span><br><span class="hljs-meta">    &#123; \</span><br><span class="hljs-meta">        static const ASN1_ITEM local_it = &#123;</span><br><br><span class="hljs-comment">/* type_it 函数后半部分 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ASN1_ITEM_end(itname) \</span><br><span class="hljs-meta">        &#125;; \</span><br><span class="hljs-meta">        return &amp;local_it; \</span><br><span class="hljs-meta">    &#125;</span><br><br><span class="hljs-comment">/* TYPE_it(void) 函数的定义 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> IMPLEMENT_ASN1_TYPE(stname) IMPLEMENT_ASN1_TYPE_ex(stname, stname, 0)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> IMPLEMENT_ASN1_TYPE_ex(itname, vname, ex) \</span><br><span class="hljs-meta">    ASN1_ITEM_start(itname) \</span><br><span class="hljs-meta">        ASN1_ITYPE_PRIMITIVE, V_##vname, NULL, 0, NULL, ex, #itname \</span><br><span class="hljs-meta">    ASN1_ITEM_end(itname)</span><br></code></pre></td></tr></table></figure>
+
+<p>很明显，“IMPLEMENT_ASN1_TYPE” 采用了封装一个静态常量的方式来记录 TYPE 的基本信息，最终会展开成一个 TYPE_it 的函数，用户调用这个函数会得到该静态变量的地址，这个函数非常重要，因为构建大多数 ASN.1 数据类型的编解码工具时都会通过调用 TYPE_it 来获取数据的信息，从而正确的进行编解码。所以 IMPLEMENT_ASN1_TYPE(ASN1_INTEGER) 最终被展开成这样：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">const</span> ASN1_ITEM *<span class="hljs-title function_">ASN1_INTEGER_it</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> ASN1_ITEM local_it = &#123;<br>        ASN1_ITYPE_PRIMITIVE, V_ASN1_INTEGER, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;ASN1_INTEGER&quot;</span><br>    &#125;;<br>    <span class="hljs-keyword">return</span> &amp;local_it;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>分析完 “IMPLEMENT_ASN1_TYPE” 宏，我们再继续看 “IMPLEMENT_ASN1_ENCODE_FUNCTIONS_fname” 宏，这个宏定义在 asn1t.h 头文件中，定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta"># <span class="hljs-keyword">define</span> IMPLEMENT_ASN1_ENCODE_FUNCTIONS_fname(stname, itname, fname) \</span><br><span class="hljs-meta">    stname *d2i_##fname(stname **a, const unsigned char **in, long len) \</span><br><span class="hljs-meta">    &#123; \</span><br><span class="hljs-meta">            return (stname *)ASN1_item_d2i((ASN1_VALUE **)a, in, len, ASN1_ITEM_rptr(itname));\</span><br><span class="hljs-meta">    &#125; \</span><br><span class="hljs-meta">    int i2d_##fname(const stname *a, unsigned char **out) \</span><br><span class="hljs-meta">    &#123; \</span><br><span class="hljs-meta">            return ASN1_item_i2d((const ASN1_VALUE *)a, out, ASN1_ITEM_rptr(itname));\</span><br><span class="hljs-meta">    &#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，大多数 ASN.1 类型的编解码工具都是最终调用了 ASN1_item_i2d 或者 ASN1_item_d2i 这两个函数。这两个函数在处理 ASN1 对象的时候都会将其地址转化为一个 ASN1_VALUE 的指针，ASN1_VALUE 是一个无定义的结构体，我想 Openssl 团队在设计这个类型时可能是考虑到程序的可读性、可扩展性，但它并没有什么实际意义，用户在操作 d2i 和 i2d 工具编解码时，实际上传入的依旧是用户自己创建的对象的地址。</p>
+<p>对于 Openssl 来说，由于将 ASN1 对象地址转换为了 ASN1_VALUE *，所以 Openssl 并不知道 ASN1 对象的具体结构，所以就需要额外传入一个 ASN1_ITEM 对象，这个对象存储了用户定义的 ASN1 对象的结构信息。对于每种类型，由于我们已经通过 “IMPLEMENT_ASN1_TYPE” 定义好了 TYPE_it 函数，这个函数返回对应类型的全局 ASN1_ITEM 结构地址，所以我们可以看到 ASN1_item_d2i 和 ASN1_item_i2d 两个函数的最后一个参数都调用 Openssl 提供的宏 “ASN1_ITEM_rptr”，这个宏展开后即是函数 const ASN1_ITEM *TYPE_it(void)，这样底层就可以准确识别数据结构，正确地进行编解码操作。</p>
+<p>那么根据以上分析，我们可以得到 IMPLEMENT_ASN1_STRING_FUNCTIONS(ASN1_INTEGER) 展开后的完整结果：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/* 定义获取 ASN.1 类型信息函数 */</span><br><span class="hljs-type">const</span> ASN1_ITEM *<span class="hljs-title function_">ASN1_INTEGER_it</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> ASN1_ITEM local_it = &#123;<br>        ASN1_ITYPE_PRIMITIVE, V_ASN1_INTEGER, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;ASN1_INTEGER&quot;</span><br>    &#125;;<br>    <span class="hljs-keyword">return</span> &amp;local_it;<br>&#125;<br><br><span class="hljs-comment">/* DER 解码 */</span><br>ASN1_INTEGER *<span class="hljs-title function_">d2i_ASN1_INTEGER</span><span class="hljs-params">(ASN1_INTEGER **a, <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **in, <span class="hljs-type">long</span> len)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> (ASN1_INTEGER *)ASN1_item_d2i((ASN1_VALUE **)a, in, len, ASN1_INTEGER_it());<br>&#125;<br><br><span class="hljs-comment">/* DER 编码 */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">i2d_ASN1_INTEGER</span><span class="hljs-params">(<span class="hljs-type">const</span> ASN1_INTEGER *a, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **out)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> ASN1_item_i2d((<span class="hljs-type">const</span> ASN1_VALUE *)a, out, ASN1_INTEGER_it());<br>&#125;<br><br><span class="hljs-comment">/* 创建 ASN.1 对象 */</span><br>ASN1_INTEGER *<span class="hljs-title function_">ASN1_INTEGER_new</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> ASN1_STRING_type_new(V_ASN1_INTEGER);<br>&#125;<br><br><span class="hljs-comment">/* 销毁 ASN.1 对象 */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">ASN1_INTEGER_free</span><span class="hljs-params">(ASN1_INTEGER *x)</span><br>&#123;<br>    ASN1_STRING_free(x);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="10-2-内置基本-ASN-1-类型的-DER-编解码"><a href="#10-2-内置基本-ASN-1-类型的-DER-编解码" class="headerlink" title="10.2 内置基本 ASN.1 类型的 DER 编解码"></a>10.2 内置基本 ASN.1 类型的 DER 编解码</h2><p>我们以 ASN1_INTEGER 和 ASN1_OCTET_STRING 为例来说明对基本类型进行编解码的方式，示例代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/asn1.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;trace/trace.h&gt;</span></span><br><br><span class="hljs-type">const</span> <span class="hljs-type">char</span> data[] = <span class="hljs-string">&quot;1234567890&quot;</span>;<br><br><span class="hljs-comment">/* 对象定义 */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *ider = <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *bder = <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *tmp = <span class="hljs-literal">NULL</span>;<br><br>    <span class="hljs-type">int</span> ilen = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">int</span> blen = <span class="hljs-number">0</span>;<br><br>    ASN1_INTEGER *int_obj = ASN1_INTEGER_new();<br>    ASN1_OCTET_STRING *byte_obj = ASN1_OCTET_STRING_new();<br><br>    <span class="hljs-keyword">if</span> (ASN1_INTEGER_set_int64(int_obj, <span class="hljs-number">1024</span>) != <span class="hljs-number">1</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;设置整数失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span>(ASN1_OCTET_STRING_set(byte_obj, (<span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *)data, <span class="hljs-keyword">sizeof</span>(data)) != <span class="hljs-number">1</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;设置八位组数据失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    <span class="hljs-comment">/* 整数的 DER 编码 */</span><br>    ilen = i2d_ASN1_INTEGER(int_obj, <span class="hljs-literal">NULL</span>);<br>    <span class="hljs-keyword">if</span> (ilen &lt; <span class="hljs-number">0</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;整数编码失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    ider = <span class="hljs-built_in">malloc</span>(ilen);<br>    tmp = ider;<br>    <span class="hljs-built_in">memset</span>(ider, <span class="hljs-number">0</span>, ilen);<br><br>    <span class="hljs-keyword">if</span> (i2d_ASN1_INTEGER(int_obj, &amp;tmp) != ilen) &#123;<br>        TRACE(<span class="hljs-string">&quot;整数编码失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    <span class="hljs-comment">/* 字节数据的 DER 编码 */</span><br>    blen = i2d_ASN1_OCTET_STRING(byte_obj, <span class="hljs-literal">NULL</span>);<br>    <span class="hljs-keyword">if</span> (blen &lt; <span class="hljs-number">0</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;数据编码失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    bder = <span class="hljs-built_in">malloc</span>(blen);<br>    tmp = bder;<br>    <span class="hljs-built_in">memset</span>(bder, <span class="hljs-number">0</span>, blen);<br><br>    <span class="hljs-keyword">if</span> (i2d_ASN1_OCTET_STRING(byte_obj, &amp;tmp) != blen) &#123;<br>        TRACE(<span class="hljs-string">&quot;数据编码失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    <span class="hljs-comment">/* 打印编码 */</span><br>    TRACE_BIN(<span class="hljs-string">&quot;ASN1_INTEGER(1024)&quot;</span>, ider, ilen);<br>    TRACE_BIN(<span class="hljs-string">&quot;ASN1_OCTET_STRING(1234567890)&quot;</span>, bder, blen);<br><br>end:<br>    <span class="hljs-keyword">if</span> (bder) &#123;<br>        <span class="hljs-built_in">free</span>(bder);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (ider) &#123;<br>        <span class="hljs-built_in">free</span>(ider);<br>    &#125;<br><br>    ASN1_OCTET_STRING_free(byte_obj);<br>    ASN1_INTEGER_free(int_obj);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>结果如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs BASH">ASN1_INTEGER(1024) size:4<br>-------------------------------------------------<br>02 02 04 00 <br>-------------------------------------------------<br>ASN1_OCTET_STRING(1234567890) size:13<br>-------------------------------------------------<br>04 0b 31 32 33 34 35 36 | 37 38 39 30 00 <br>-------------------------------------------------<br></code></pre></td></tr></table></figure>
+
+<p>内置的数据编解码比较简单，不同数据类型调用方式相对统一。基本都是先调用 TYPE_new 创建 ASN1 对象，然后将对应的数据设置给对象，然后调用 i2d_TYPE 进行编码；对于解码操作，直接调用 d2i_TYPE 即可，读者可以自己实现 DER 解码，这里仅列出编码操作。</p>
+<h2 id="10-3-复杂数据的-DER-编解码"><a href="#10-3-复杂数据的-DER-编解码" class="headerlink" title="10.3 复杂数据的 DER 编解码"></a>10.3 复杂数据的 DER 编解码</h2><p>我们这里称用户定义的 ASN1 类型本身数据类型是 SEQUENCE 的为复杂类型。和基本内置类型一样，Openssl 同样定义了很多内置的复杂类型，比如 X509、PKCS7、X509_ALGOR、PKCS12、RSAPrivateKey、RSAPublicKey、SM2_Ciphertext 等等。</p>
+<p>我们先分析一个比较简单的 SM2 签名结构，因为 SM2 也是一种椭圆曲线算法，所以 Openssl 并没有重新定义 SM2 签名的 ASN.1 结构，而是直接采用 ECDSA 算法的 ASN.1 结构。SM2 的 ASN.1 定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C">SM2Signature ::= SEQUENCE &#123;<br>    R INTEGER,<br>    S INTEGER<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>既然 Openssl 并没有专门为 SM2Signature 定义 ASN.1 结构，那么我们可以自己定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/* 定义 SM2 签名结构 */</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sm2_signature_st</span> &#123;</span><br>    ASN1_INTEGER *r;<br>    ASN1_INTEGER *s;<br>&#125; SM2_SIGNATURE;<br><br><span class="hljs-comment">/* 声明 SM2 签名编解码工具 */</span><br>DECLARE_ASN1_FUNCTIONS(SM2_SIGNATURE)<br></code></pre></td></tr></table></figure>
+
+<p>我们在前面的 10.1 节就讲解了创建基本 ASN.1 类型的流程。在实现基本 ASN.1 类型的编解码工具之前，必须通过调用 IMPLEMENT_ASN1_TYPE 这个宏来创建一个全局的类型信息对象，通过 TYPE_it(void) 函数来返回这个类型信息；对于复杂的 ASN.1 类型来说，同样需要创建一个全局对象，只不过调用宏模板的方式不同，对于 SM2 SIGNATURE 结构，定义编解码工具的代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/* 定义 ASN.1 结构信息 */</span><br>ASN1_SEQUENCE(SM2_SIGNATURE) = &#123;<br>    ASN1_SIMPLE(SM2_SIGNATURE, r, ASN1_INTEGER),<br>    ASN1_SIMPLE(SM2_SIGNATURE, s, ASN1_INTEGER)<br>&#125; ASN1_SEQUENCE_END(SM2_SIGNATURE);<br><br><span class="hljs-comment">/* 定义编解码工具 */</span><br>IMPLEMENT_ASN1_FUNCTIONS(SM2_SIGNATURE)<br></code></pre></td></tr></table></figure>
+
+<p>从上面的示例我们可以看到，我们在自定义 ASN.1 结构时首先调用 “ASN1_SEQUENCE” 宏，这个宏的作用是声明一个静态的 ASN1_TEMPLATE 数组常量，用于描述 ASN.1 结构里面每一个成员的类型、偏移值、字段名称以及是否带有 TAG 标记等基本信息； “ASN1_SEQUENCE_END” 宏放在数组定义后面，它的功能是为编解码工具定义一个 TYPE_it（就像定义基本 ASN.1 类型时那样）；而 “ASN1_SEQUENCE” 宏则是描述结构内成员的基本信息。“ASN1_SIMPLE” 宏展开后是一个初始化 ASN1_TEMPLATE 的语句。结构里面有几个成员需要被编码，则定义几个 ASN1_SIMPLE。以我们自己定义的 SM2_SIGNATURE 为例，这些宏展开以后的形式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">static</span> <span class="hljs-type">const</span> ASN1_TEMPLATE SM2_SIGNATURE_seq_tt[] = &#123;<br>    &#123; <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, offsetof(SM2_SIGNATURE, r),  <span class="hljs-string">&quot;r&quot;</span>, ASN1_INTEGER_it &#125;,<br>    &#123; <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, offsetof(SM2_SIGNATURE, s),  <span class="hljs-string">&quot;s&quot;</span>, ASN1_INTEGER_it &#125;<br>&#125;;<br><br><span class="hljs-type">const</span> ASN1_ITEM *<span class="hljs-title function_">SM2_SIGNATURE_it</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> ASN1_ITEM local_it = &#123;<br>        ASN1_ITYPE_SEQUENCE,<br>        V_ASN1_SEQUENCE,<br>        SM2_SIGNATURE_seq_tt,<br>        <span class="hljs-keyword">sizeof</span>(SM2_SIGNATURE_seq_tt) / <span class="hljs-keyword">sizeof</span>(ASN1_TEMPLATE),<br>        <span class="hljs-literal">NULL</span>,<br>        <span class="hljs-keyword">sizeof</span>(SM2_SIGNATURE),<br>        <span class="hljs-string">&quot;SM2_SIGNATURE&quot;</span><br>    &#125;;<br>    <span class="hljs-keyword">return</span> &amp;local_it ;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>以上这些示例就是创建自定义 DER 编解码工具的流程，我们可以随意找一段 SM2 签名数据来测试 DER 解码，完整代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/asn1t.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;trace/trace.h&gt;</span></span><br><br><span class="hljs-comment">/* 定义 SM2 签名结构 */</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sm2_signature_st</span> &#123;</span><br>    ASN1_INTEGER *r;<br>    ASN1_INTEGER *s;<br>&#125; SM2_SIGNATURE;<br><br><span class="hljs-comment">/* 声明编解码工具 */</span><br>DECLARE_ASN1_FUNCTIONS(SM2_SIGNATURE)<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>    <span class="hljs-type">int</span> slen = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *data = <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *tmp = <span class="hljs-literal">NULL</span>;<br>    SM2_SIGNATURE *sign = <span class="hljs-literal">NULL</span>;<br><br>    <span class="hljs-comment">/* 读取 sm2 签名文件 sm2-signature.sig */</span><br>    read_data(<span class="hljs-string">&quot;sm2-signature.sig&quot;</span>, <span class="hljs-literal">NULL</span>, &amp;slen);<br><br>    <span class="hljs-keyword">if</span> (slen &lt;= <span class="hljs-number">0</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;读取数据失败\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    data = <span class="hljs-built_in">malloc</span>(slen);<br>    <span class="hljs-built_in">memset</span>(data, <span class="hljs-number">0</span>, slen);<br><br>    read_data(<span class="hljs-string">&quot;sm2-signature.sig&quot;</span>, data, &amp;slen);<br><br>    <span class="hljs-comment">/* 打印原始编码的数据 */</span><br>    TRACE_BIN(<span class="hljs-string">&quot;sm2-signature.sig&quot;</span>, data, slen);<br><br>    <span class="hljs-comment">/* DER 解码 */</span><br>    tmp = data;<br>    sign = d2i_SM2_SIGNATURE(<span class="hljs-literal">NULL</span>, &amp;tmp, slen);<br>    <span class="hljs-keyword">if</span> (!sign || !sign-&gt;r || !sign-&gt;s) &#123;<br>        TRACE(<span class="hljs-string">&quot;解码失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    <span class="hljs-comment">/* 分别打印解码后 r 和 s 的数据 */</span><br>    TRACE_BIN(<span class="hljs-string">&quot;r&quot;</span>, sign-&gt;r-&gt;data, sign-&gt;r-&gt;length);<br>    TRACE_BIN(<span class="hljs-string">&quot;s&quot;</span>, sign-&gt;s-&gt;data, sign-&gt;s-&gt;length);<br><br>end:<br>    <span class="hljs-keyword">if</span> (sign) &#123;<br>        SM2_SIGNATURE_free(sign);<br>    &#125;<br><br>    <span class="hljs-built_in">free</span>(data);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">/* 定义 ASN.1 结构信息 */</span><br>ASN1_SEQUENCE(SM2_SIGNATURE) = &#123;<br>    ASN1_SIMPLE(SM2_SIGNATURE, r, ASN1_INTEGER),<br>    ASN1_SIMPLE(SM2_SIGNATURE, s, ASN1_INTEGER)<br>&#125; ASN1_SEQUENCE_END(SM2_SIGNATURE);<br><br><span class="hljs-comment">/* 定义编解码工具 */</span><br>IMPLEMENT_ASN1_FUNCTIONS(SM2_SIGNATURE)<br></code></pre></td></tr></table></figure>
+
+<p>以上测试程序的运行结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs BASH">sm2-signature.sig size:71<br>-------------------------------------------------<br>30 45 02 20 17 fd 8b 45 | 62 10 60 97 ce 60 71 ae<br>90 3c 0d 2c 64 23 4a a7 | 2e 29 ff fe ee 4f 01 6f<br>27 95 4d b5 02 21 00 d9 | 3f a2 eb c6 e3 7f 71 79<br>42 19 fd 3f cc d7 c3 8d | 11 aa af 07 f6 36 cb 17<br>62 25 12 ae fd 8f a7 <br>-------------------------------------------------<br>r size:32<br>-------------------------------------------------<br>17 fd 8b 45 62 10 60 97 | ce 60 71 ae 90 3c 0d 2c<br>64 23 4a a7 2e 29 ff fe | ee 4f 01 6f 27 95 4d b5<br>-------------------------------------------------<br>s size:32<br>-------------------------------------------------<br>d9 3f a2 eb c6 e3 7f 71 | 79 42 19 fd 3f cc d7 c3<br>8d 11 aa af 07 f6 36 cb | 17 62 25 12 ae fd 8f a7<br>-------------------------------------------------<br></code></pre></td></tr></table></figure>
+
+<p>以上是本章的全部内容。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" class="category-chain-item">信息安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Programming/" class="print-no-link">#Programming</a>
+      
+        <a href="/tags/Openssl/" class="print-no-link">#Openssl</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Openssl 加密算法库编程精要 10 ASN.1 模块攻略，DER 编解码</div>
+      <div>https://huowenjie.github.io/04/13/2022/openssl-tutorials10/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>辽州小虾米</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/04/18/2022/openssl-tutorials11/" title="Openssl 加密算法库编程精要 11 PKI 体系概述">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Openssl 加密算法库编程精要 11 PKI 体系概述</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/03/22/2022/openssl-tutorials09/" title="Openssl 加密算法库编程精要 09 ASN.1 模块攻略，Openssl ASN.1 Object">
+                        <span class="hidden-mobile">Openssl 加密算法库编程精要 09 ASN.1 模块攻略，Openssl ASN.1 Object</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

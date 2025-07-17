@@ -1,0 +1,744 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/image/logo/icon.png">
+  <link rel="icon" href="/image/logo/icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="辽州小虾米">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="介绍几种密钥编解码方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Openssl 加密算法库编程精要 07 详解 EVP API 公开密钥密码算法 -- 密钥编解码">
+<meta property="og:url" content="https://huowenjie.github.io/02/14/2022/openssl-tutorials07/index.html">
+<meta property="og:site_name" content="辽州小虾米的博客">
+<meta property="og:description" content="介绍几种密钥编解码方法">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-02-14T07:37:00.000Z">
+<meta property="article:modified_time" content="2024-12-13T01:36:27.656Z">
+<meta property="article:author" content="辽州小虾米">
+<meta property="article:tag" content="Programming">
+<meta property="article:tag" content="Openssl">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Openssl 加密算法库编程精要 07 详解 EVP API 公开密钥密码算法 -- 密钥编解码 - 辽州小虾米的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"huowenjie.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4896352768478153" crossorigin="anonymous"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>辽州小虾米</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/background/blogback.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Openssl 加密算法库编程精要 07 详解 EVP API 公开密钥密码算法 -- 密钥编解码"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        辽州小虾米
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-02-14 15:37" pubdate>
+          2022年2月14日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Openssl 加密算法库编程精要 07 详解 EVP API 公开密钥密码算法 -- 密钥编解码</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>介绍几种密钥编解码方法</p>
+<span id="more"></span>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.openssl.org/">Openssl 官方网站</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.openssl.org/master/">Openssl 官方文档</a></li>
+<li>《ASN.1编码规则详解（最全最经典）》 – 无名氏译</li>
+<li>《ASN.1  Communication between Heterogeneous Systems》– Olivier Dubuisson</li>
+<li>《ASN.1 Complete》 – J.Larmouth</li>
+<li>《GBT 16262.1-2006 信息技术 抽象语法记法一(ASN.1) 第1部分基本记法规范》</li>
+<li>《GBT 16262.1-2006 信息技术 抽象语法记法一(ASN.1) 第2部分信息客体规范》</li>
+<li>《GBT 16262.1-2006 信息技术 抽象语法记法一(ASN.1) 第3部分约束规范》</li>
+<li>《GBT 16262.1-2006 信息技术 抽象语法记法一(ASN.1) 第4部分参数化》</li>
+<li>《GBT 16263.1-2006 信息技术 ASN.1 编码规则 第1部分：BER、DER、CER规范》</li>
+<li>《GBT 16263.2-2006 信息技术 ASN.1 编码规则 第2部分：紧缩编码规则（PER）规范》</li>
+</ol>
+<h2 id="7-1-ASN-1-标准简介"><a href="#7-1-ASN-1-标准简介" class="headerlink" title="7.1 ASN.1 标准简介"></a>7.1 ASN.1 标准简介</h2><p>ASN.1(Abstract Syntax Notation dot one)，抽象语法记法1，是定义抽象数据类型规格形式的标准，是用于描述数据的表示、编码、传输、解码的灵活的记法。它提供了一套正式的、无歧义和精确的规则，以描述独立于特定计算机硬件的对象结构。ASN.1 特别适合表示现代通信应用中那些复杂的、变化的以及可扩展的数据结构。</p>
+<p>ASN.1 本身只定义了表示信息的抽象语法，并没有限定其编码方式。各种 ASN.1 编码规则提供了由 ASN.1 描述其抽象句法数据值的传送方法，常见的 ASN.1 编码方式有如下几种：</p>
+<ul>
+<li>BER 编码，Basic Encoding Rules，基本编码规则；</li>
+<li>CER 编码，Canonical Encoding Rules，规范编码规则；</li>
+<li>DER 编码，Distinguished Encoding Rules，可分辨编码规则（或者叫唯一编码规则）；</li>
+<li>PER 编码，Packed Encoding Rules，压缩编码规则；</li>
+<li>XER 编码，XML Encoding Rules，XML 编码规则。</li>
+</ul>
+<p>一个由 ASN.1 编码的源文件可以很方便地解码为 C 或者 C++ 这样语言的数据结构。绝大多数操作系统上的工具都支持 ASN.1，其应用非常广泛，包括并不限于视频、音频、数据流以及各种网络协议等。同时 ASN.1 也是一种用于描述结构化客体的结构和内容的语言，大量密码行业的标准都用 ASN.1 来描述其定义的数据结构。比如在 RFC3447《Public-Key Cryptography Standards (PKCS) #1: RSA Cryptography Specifications Version 2.1》标准中采用 ASN.1 描述 RSA 公钥和私钥的数据格式，如下示例 1 所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs C">RSAPublicKey ::= SEQUENCE &#123;<br>    modulus INTEGER, -- n<br>    publicExponent INTEGER -- e<br>&#125;<br><br>RSAPrivateKey ::= SEQUENCE &#123;<br>    version Version,<br>    modulus INTEGER, -- n<br>    publicExponent INTEGER, -- e<br>    privateExponent INTEGER, -- d<br>    prime1 INTEGER, -- p<br>    prime2 INTEGER, -- q<br>    exponent1 INTEGER, -- d mod (p<span class="hljs-number">-1</span>)<br>    exponent2 INTEGER, -- d mod (q<span class="hljs-number">-1</span>)<br>    coefficient INTEGER, -- (inverse of q) mod p<br>    otherPrimeInfos OtherPrimeInfos OPTIONAL<br>&#125;<br><br>Version ::= INTEGER &#123; two-prime(<span class="hljs-number">0</span>), multi(<span class="hljs-number">1</span>) &#125; (CONSTRAINED BY &#123;-- version must be multi <span class="hljs-keyword">if</span> otherPrimeInfos present --&#125;)<br>OtherPrimeInfos ::= SEQUENCE SIZE(<span class="hljs-number">1.</span>.MAX) OF OtherPrimeInfo<br>OtherPrimeInfo ::= SEQUENCE &#123;<br>　　prime INTEGER, -- ri<br>　　exponent INTEGER, -- di<br>　　coefficient INTEGER -- ti<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中，对于公钥结构，SEQENCE 代表顺序结构，相当于 C 语言中的结构体，INTEGER 代表整数；私钥结构的第一个成员是一个名为 Version，实际上它是一个基本类型 INTEGER，并且在 Version 成员上还定义了一个自定义约束，这个约束表明如果当前 RSA 算法仅使用了两个大素数进行运算的话，版本号是 0，否则如果使用了多余两个素数，则版本号是 1。私钥的最后一个成员 OtherPromeInfos 被 OPTIONAL 修饰，表明它是可选的，OtherPrimeInfos 是一个 OtherPrimeInfo 对象的无序列表，每个 OherPrimerInfo 内部分别包含  prime、exponent 和 coefficient 成员。</p>
+<p>ASN.1 需要学习的内容远不止如此，我会在下一节专门讲述 Openssl ASN1 模块的功能，这里我整理了一部分关于 ASN.1 的资料，放在本文的开头，感兴趣的读者可以参考。</p>
+<h2 id="7-2-密钥的-DER-编码和解码"><a href="#7-2-密钥的-DER-编码和解码" class="headerlink" title="7.2 密钥的 DER 编码和解码"></a>7.2 密钥的 DER 编码和解码</h2><p>Openssl 提供了密钥的编解码接口，接口定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/evp.h&gt;</span></span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 私钥解码</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * type[in] -- 算法类型</span><br><span class="hljs-comment"> * a[out] -- 解码后的密钥对象</span><br><span class="hljs-comment"> * pp[in] -- 待解码的密钥数据首地址</span><br><span class="hljs-comment"> * length[in] -- 数据长度</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * 成功，返回密钥对象，否则返回 NULL</span><br><span class="hljs-comment"> */</span><br>EVP_PKEY *<span class="hljs-title function_">d2i_PrivateKey</span><span class="hljs-params">(<span class="hljs-type">int</span> type, EVP_PKEY **a, <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **pp, <span class="hljs-type">long</span> length)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 公钥解码</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * type[in] -- 算法类型</span><br><span class="hljs-comment"> * a[out] -- 解码后的密钥对象</span><br><span class="hljs-comment"> * pp[in] -- 待解码的密钥数据首地址</span><br><span class="hljs-comment"> * length[in] -- 数据长度</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * 成功，返回密钥对象，否则返回 NULL</span><br><span class="hljs-comment"> */</span><br>EVP_PKEY *<span class="hljs-title function_">d2i_PublicKey</span><span class="hljs-params">(<span class="hljs-type">int</span> type, EVP_PKEY **a, <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **pp, <span class="hljs-type">long</span> length)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 私钥编码</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * a[in] -- 密钥对象</span><br><span class="hljs-comment"> * pp[out] -- 存储编码数据的缓冲区地址</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * 成功，返回编码数据的长度，否则返回一个负数</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">i2d_PrivateKey</span><span class="hljs-params">(<span class="hljs-type">const</span> EVP_PKEY *a, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **pp)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 公钥编码</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * a[in] -- 密钥对象</span><br><span class="hljs-comment"> * pp[out] -- 存储编码数据的缓冲区地址</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * 成功，返回编码数据的长度，否则返回一个负数</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">i2d_PublicKey</span><span class="hljs-params">(<span class="hljs-type">const</span> EVP_PKEY *a, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> **pp)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，Openssl 中对于 der 编解码有一个约定俗成的命名规则：如果是 der 编码，函数前缀则是 i2d(internal to der)，如果是 der 解码，则函数前缀则是 d2i(der to internal)，以上四个函数均是这个规律。<br>对于密钥编码的两个接口，Openssl 允许第二个参数 pp 传 NULL，这样可以预先计算出编码后的数据大小，适合动态分配内存的场景；如果 pp 参数不为 NULL，那么必须保证存放出参的缓冲区足够放得下编码后的数据，如下示例 2 所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/evp.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;trace/trace.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> &#123;</span><br>    <span class="hljs-type">size_t</span> len;<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *data;<br>&#125;;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span> <br>&#123;<br>    EVP_PKEY_CTX *ctx = <span class="hljs-literal">NULL</span>;<br>    <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">pub</span> =</span> &#123; <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span> &#125;;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">prv</span> =</span> &#123; <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span> &#125;;<br><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *p = <span class="hljs-literal">NULL</span>;<br><br>    <span class="hljs-comment">/* 首先生成非对称密钥 */</span><br>    EVP_PKEY *<span class="hljs-built_in">pair</span> = EVP_PKEY_Q_keygen(<span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-string">&quot;RSA&quot;</span>, <span class="hljs-number">1024</span>);<br><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">pair</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;生成密钥失败\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    <span class="hljs-comment">/* 获取非对称算法上下文 */</span><br>    ctx = EVP_PKEY_CTX_new_from_pkey(<span class="hljs-literal">NULL</span>, <span class="hljs-built_in">pair</span>, <span class="hljs-literal">NULL</span>);<br>    <span class="hljs-keyword">if</span> (!ctx) &#123;<br>        TRACE(<span class="hljs-string">&quot;生成非对称算法上下文失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    pub.len = (<span class="hljs-type">size_t</span>)i2d_PublicKey(<span class="hljs-built_in">pair</span>, <span class="hljs-literal">NULL</span>);<br>    prv.len = (<span class="hljs-type">size_t</span>)i2d_PrivateKey(<span class="hljs-built_in">pair</span>, <span class="hljs-literal">NULL</span>);<br><br>    pub.data = <span class="hljs-built_in">malloc</span>(pub.len);<br>    prv.data = <span class="hljs-built_in">malloc</span>(prv.len);<br><br>    <span class="hljs-built_in">memset</span>(pub.data, <span class="hljs-number">0</span>, pub.len);<br>    <span class="hljs-built_in">memset</span>(prv.data, <span class="hljs-number">0</span>, prv.len);<br><br>    p = pub.data;<br>    <span class="hljs-keyword">if</span> (i2d_PublicKey(<span class="hljs-built_in">pair</span>, &amp;p) != (<span class="hljs-type">int</span>)pub.len) &#123;<br>        TRACE(<span class="hljs-string">&quot;公钥转码失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    p = prv.data;<br>    <span class="hljs-keyword">if</span> (i2d_PrivateKey(<span class="hljs-built_in">pair</span>, &amp;p) != (<span class="hljs-type">int</span>)prv.len) &#123;<br>        TRACE(<span class="hljs-string">&quot;私钥转码失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    TRACE_BIN(<span class="hljs-string">&quot;pubkey der&quot;</span>, pub.data, (<span class="hljs-type">int</span>)pub.len);<br>    TRACE_BIN(<span class="hljs-string">&quot;prvkey der&quot;</span>, prv.data, (<span class="hljs-type">int</span>)prv.len);<br><br>    save_data(<span class="hljs-string">&quot;pubkey.der&quot;</span>, pub.data, (<span class="hljs-type">int</span>)pub.len);<br>    save_data(<span class="hljs-string">&quot;prvkey.der&quot;</span>, prv.data, (<span class="hljs-type">int</span>)prv.len);<br><br>end:<br>    <span class="hljs-keyword">if</span> (pub.data) &#123;<br>        <span class="hljs-built_in">free</span>(pub.data);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (prv.data) &#123;<br>        <span class="hljs-built_in">free</span>(prv.data);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (ctx) &#123;<br>        EVP_PKEY_CTX_free(ctx);<br>    &#125;<br><br>    EVP_PKEY_free(<span class="hljs-built_in">pair</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>测试程序采用了 RSA1024 来作为测试算法，save_data 函数则是一个快速保存文件的函数，生成的密钥在转码之后分别保存在 pubkey.der 和 prvkey.der 两个文件中。保存完毕后，在测试程序的当前目录下我们会找到 pubkey.der 和 prvkey.der 这两个文件，然后我们执行示例2来对密钥读入并解码打印，如下示例 3 所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;openssl/evp.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;trace/trace.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> &#123;</span><br>    <span class="hljs-type">size_t</span> len;<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *data;<br>&#125;;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span> <br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">pub</span> =</span> &#123; <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span> &#125;;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BIN_DATA</span> <span class="hljs-title">prv</span> =</span> &#123; <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span> &#125;;<br><br>    EVP_PKEY *pub_key = <span class="hljs-literal">NULL</span>;<br>    EVP_PKEY *prv_key = <span class="hljs-literal">NULL</span>;<br><br>    <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *p = <span class="hljs-literal">NULL</span>;<br><br>    <span class="hljs-comment">/* 读取密钥文件 */</span><br>    read_data(<span class="hljs-string">&quot;pubkey.der&quot;</span>, <span class="hljs-literal">NULL</span>, (<span class="hljs-type">int</span> *)&amp;pub.len);<br>    read_data(<span class="hljs-string">&quot;prvkey.der&quot;</span>, <span class="hljs-literal">NULL</span>, (<span class="hljs-type">int</span> *)&amp;prv.len);<br><br>    <span class="hljs-keyword">if</span> (pub.len &lt;= <span class="hljs-number">0</span> || prv.len &lt;= <span class="hljs-number">0</span>) &#123;<br>        TRACE(<span class="hljs-string">&quot;读取密钥失败\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    pub.data = <span class="hljs-built_in">malloc</span>(pub.len);<br>    prv.data = <span class="hljs-built_in">malloc</span>(prv.len);<br><br>    <span class="hljs-built_in">memset</span>(pub.data, <span class="hljs-number">0</span>, pub.len);<br>    <span class="hljs-built_in">memset</span>(prv.data, <span class="hljs-number">0</span>, prv.len);<br><br>    read_data(<span class="hljs-string">&quot;pubkey.der&quot;</span>, pub.data, (<span class="hljs-type">int</span> *)&amp;pub.len);<br>    read_data(<span class="hljs-string">&quot;prvkey.der&quot;</span>, prv.data, (<span class="hljs-type">int</span> *)&amp;prv.len);<br><br>    p = pub.data;<br>    d2i_PublicKey(EVP_PKEY_RSA, &amp;pub_key, &amp;p, (<span class="hljs-type">long</span>)pub.len);<br>    <span class="hljs-keyword">if</span> (!pub_key) &#123;<br>        TRACE(<span class="hljs-string">&quot;解码公钥失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    p = prv.data;<br>    d2i_PrivateKey(EVP_PKEY_RSA, &amp;prv_key, &amp;p, (<span class="hljs-type">long</span>)prv.len);<br>    <span class="hljs-keyword">if</span> (!prv_key) &#123;<br>        TRACE(<span class="hljs-string">&quot;解码私钥失败\n&quot;</span>);<br>        <span class="hljs-keyword">goto</span> end;<br>    &#125;<br><br>    <span class="hljs-comment">/* 打印解码后的密钥 */</span><br>    EVP_PKEY_print_public_fp(<span class="hljs-built_in">stdout</span>, pub_key, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>);<br>    EVP_PKEY_print_private_fp(<span class="hljs-built_in">stdout</span>, prv_key, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>);<br><br>end:<br>    <span class="hljs-keyword">if</span> (pub_key) &#123;<br>        EVP_PKEY_free(pub_key);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (prv_key) &#123;<br>        EVP_PKEY_free(prv_key);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (pub.data) &#123;<br>        <span class="hljs-built_in">free</span>(pub.data);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (prv.data) &#123;<br>        <span class="hljs-built_in">free</span>(prv.data);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>示例 3 程序中调用了 read_data 函数，它是一个读取文件的函数，我们用它来读取在示例 2 中保存的两个密钥文件，并将密钥数据保存在内存中，利用 d2i_* 的这两个接口将编码数据转换为内部数据，然后再打印出密钥的数据，结果如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs BASH">RSA Public-Key: (1024 bit)<br>Modulus:<br>    00:b3:61:50:b9:32:3c:14:02:79:ea:84:1f:0d:e8:<br>    70:e3:ca:2c:7f:a0:e9:69:ac:e3:81:b8:46:16:51:<br>    64:c5:13:46:1d:64:26:c8:57:51:4b:8b:6a:c6:4f:<br>    1d:e6:07:33:21:5a:6d:81:78:cb:53:c3:cf:7a:6b:<br>    b4:d3:b5:5f:c2:7f:59:9d:79:<span class="hljs-built_in">df</span>:40:f7:ed:80:2a:<br>    e6:b1:5f:31:37:8a:bf:48:ce:08:38:06:09:f0:7b:<br>    bb:50:4e:69:a0:31:04:96:44:a0:84:38:e9:9e:a5:<br>    67:6f:92:db:51:52:53:ca:0f:1f:bb:dc:17:fd:ab:<br>    82:4a:e7:b0:43:c9:0f:0f:89<br>Exponent: 65537 (0x10001)<br>Private-Key: (1024 bit, 2 primes)<br>modulus:<br>    00:b3:61:50:b9:32:3c:14:02:79:ea:84:1f:0d:e8:<br>    70:e3:ca:2c:7f:a0:e9:69:ac:e3:81:b8:46:16:51:<br>    64:c5:13:46:1d:64:26:c8:57:51:4b:8b:6a:c6:4f:<br>    1d:e6:07:33:21:5a:6d:81:78:cb:53:c3:cf:7a:6b:<br>    b4:d3:b5:5f:c2:7f:59:9d:79:<span class="hljs-built_in">df</span>:40:f7:ed:80:2a:<br>    e6:b1:5f:31:37:8a:bf:48:ce:08:38:06:09:f0:7b:<br>    bb:50:4e:69:a0:31:04:96:44:a0:84:38:e9:9e:a5:<br>    67:6f:92:db:51:52:53:ca:0f:1f:bb:dc:17:fd:ab:<br>    82:4a:e7:b0:43:c9:0f:0f:89<br>publicExponent: 65537 (0x10001)<br>privateExponent:<br>    18:c1:c4:97:5a:c4:89:ea:71:93:19:5b:03:db:61:<br>    c1:3e:84:f7:b4:68:a2:8a:16:f8:2f:4b:95:06:f4:<br>    c6:72:4b:8a:00:e9:8d:5a:e7:c0:6a:64:79:2c:30:<br>    2f:30:2d:31:5c:3e:a2:d0:de:17:18:7e:49:22:16:<br>    59:e5:bd:6a:6a:55:3c:fb:2a:fb:85:e2:f3:56:72:<br>    a0:64:26:ed:55:3e:8f:94:e9:de:cc:03:ea:64:20:<br>    53:53:02:f6:25:aa:0d:47:c8:22:26:5e:12:e3:c7:<br>    19:32:d3:66:da:73:bd:2c:20:42:f6:74:<span class="hljs-built_in">fc</span>:62:6c:<br>    09:39:ce:a5:79:66:af:11<br>prime1:<br>    00:e2:75:bb:50:7f:e8:93:69:0c:d9:9a:1e:c1:84:<br>    1b:34:d2:7c:c5:e5:f1:41:4d:42:28:a6:c6:e8:47:<br>    75:de:95:77:95:29:0b:da:58:38:2c:eb:b3:41:68:<br>    16:4b:f2:39:bb:57:f6:d4:1b:e9:97:0c:5f:b4:09:<br>    35:5a:31:e6:b5<br>prime2:<br>    00:ca:c7:6e:1b:ac:c3:36:2c:0d:d7:1d:ca:e3:6f:<br>    15:d2:34:c6:b9:c7:51:ab:1a:4b:a8:ca:1d:95:64:<br>    29:cb:7a:e5:3c:34:97:a1:45:8a:88:63:d2:00:17:<br>    2b:93:5e:9a:43:f2:5c:f0:e4:15:00:9b:bd:ce:ed:<br>    11:e2:7a:16:05<br>exponent1:<br>    00:da:97:82:03:a6:33:bd:76:bd:6c:9e:13:e9:ff:<br>    b6:b3:3a:2a:2e:6c:52:80:12:2f:36:46:25:e1:b8:<br>    78:d2:2d:bc:8c:42:5e:aa:98:55:41:27:12:94:a4:<br>    00:41:b6:c2:7b:4f:e1:75:c4:ab:a9:9d:cc:13:60:<br>    80:1b:5b:e7:b1<br>exponent2:<br>    14:d9:ea:fd:97:87:3f:43:ca:6c:8b:58:b8:88:4c:<br>    b3:1f:d0:2b:7c:4e:6e:8c:b6:a8:f5:97:93:2c:08:<br>    8c:2e:e7:f1:87:ea:eb:9f:6d:fe:56:5d:5a:bb:07:<br>    35:11:2e:45:bc:5f:48:39:fb:da:e3:28:e2:65:48:<br>    48:84:8b:4d<br>coefficient:<br>    04:49:14:53:cf:c2:54:4b:d8:e6:33:88:36:ea:5c:<br>    ad:de:10:bd:73:27:d6:b1:6c:8d:7f:7e:88:6b:de:<br>    ab:25:64:3f:d1:1b:75:5a:86:4e:a8:59:58:4a:57:<br>    91:03:e1:7d:bd:47:cb:c4:81:02:fb:fa:8a:32:10:<br>    ff:35:10:b7<br></code></pre></td></tr></table></figure>
+
+<p>以上是本章的全部内容。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" class="category-chain-item">信息安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Programming/" class="print-no-link">#Programming</a>
+      
+        <a href="/tags/Openssl/" class="print-no-link">#Openssl</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Openssl 加密算法库编程精要 07 详解 EVP API 公开密钥密码算法 -- 密钥编解码</div>
+      <div>https://huowenjie.github.io/02/14/2022/openssl-tutorials07/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>辽州小虾米</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年2月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/03/11/2022/openssl-tutorials08/" title="Openssl 加密算法库编程精要 08 ASN.1 模块攻略，ASN.1 记法语法规则">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Openssl 加密算法库编程精要 08 ASN.1 模块攻略，ASN.1 记法语法规则</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/02/14/2022/openssl-tutorials06/" title="Openssl 加密算法库编程精要 06 详解 EVP API 公开密钥密码算法 -- 非对称加密、签名">
+                        <span class="hidden-mobile">Openssl 加密算法库编程精要 06 详解 EVP API 公开密钥密码算法 -- 非对称加密、签名</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
