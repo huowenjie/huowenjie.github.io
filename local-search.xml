@@ -415,7 +415,7 @@
     <link href="/01/26/2022/openssl-tutorials01/"/>
     <url>/01/26/2022/openssl-tutorials01/</url>
     
-    <content type="html"><![CDATA[<p>提示：如果读者发现了本系列文章所述的问题和错误，笔者欢迎各位读者将建议发到笔者的电子邮箱 <a href="mailto:&#x68;&#x75;&#x6f;&#119;&#101;&#110;&#x6a;&#105;&#101;&#x30;&#52;&#50;&#x37;&#64;&#115;&#x69;&#x6e;&#97;&#46;&#x63;&#111;&#109;">&#x68;&#x75;&#x6f;&#119;&#101;&#110;&#x6a;&#105;&#101;&#x30;&#52;&#50;&#x37;&#64;&#115;&#x69;&#x6e;&#97;&#46;&#x63;&#111;&#109;</a>，我将不定时更正或优化。</p><span id="more"></span><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol><li><a href="https://www.openssl.org/">Openssl 官方网站</a></li><li><a href="https://docs.openssl.org/master/">Openssl 官方文档</a></li><li><a href="https://wiki.openssl.org/index.php/Main_Page">Openssl Wiki</a></li></ol><h2 id="1-1-简述"><a href="#1-1-简述" class="headerlink" title="1.1 简述"></a>1.1 简述</h2><p>Openssl 是一个免费开源的工具包，实现了 TLS&#x2F;SSL 协议和绝大多数的主流密码算法和标准，最初的版本由 Eric A. Young 和 Tim J. Hudson 创建，其官方网站为 <a href="www.openssl.org">www.openssl.org</a>。Openssl 主要包含三个部分：</p><ul><li>libssl  – TLS 协议的实现（RFC 8446）</li><li>libcrypto – 加密算法库，支持绝大多数密码算法，是实现 TLS 协议和 PKI 体系的基础</li><li>openssl – 命令行工具</li></ul><p>Openssl 当前主要的发布版本是 1.1.1，新开发的 Openssl3.0+ 相较于前者不论是架构体系还是设计理念都有了较大的变化。尽管 Openssl 团队发布声明会尽量将这次的版本升级的影响降至最低，但是不可避免的，用户在从 1.1.1 迁移至 3.0+ 仍然需要改动部份程序，并且需要重新编译应用程序。所以目前来看 Openssl3.0 这个版本并不兼容旧的版本，而且随着时间的推移会逐步将一大部分接口直接废弃，特别是那些贴近底层的 API。<br>Openssl 团队进一步优化了新版本架构，将各个模块的耦合性进一步降低，并且提供了一个叫 “Provider” 的模式用来管理其他的底层模块，实现动态的、可插拔的底层实现。而对于应用层而言，用户无需考虑各种底层实现，只需要专注于功能和应用，以下是 Openssl3.0 的整体架构设计图（所有的设计图片均摘录自 Openssl3.0 官方设计草案，见参考资料）：</p><p><img src="/image/2022/openssl-tutorials/OpensslDesign.png"></p><p>按照我的理解，“Provider” 是一个抽象的概念，更像是一个标准。每个不同的 “Provider” 按照相同的标准实现相应的底层算法和功能，然后通过 “Core” 模块直接 “装配” 到 Openssl 上，通过这种方式给顶层的应用程序提供密码服务。这样的设计增加了整体结构的灵活性，除了可以隔离应用层和底层，使底层的变化不至于大范围的影响应用层，还可以自己定制个性化的 “Provider” 以满足特殊的需求。<br>Openssl 3.0 的内核设计也是非常的有特色，内核可以缓存和调度各个 Provider, 使其可以各自独立地工作互不影响，并且它和 EVP API 模块有着非常紧密的联系，如图所示：</p><p><img src="/image/2022/openssl-tutorials/OpensslArch.png"></p><p>用户首先会通过内核加载 Provider，在加载 Provider 的时候内核会将该 Provider 的相关信息包括算法实现全部加载到缓存区域，用户在使用该 Provider 提供的算法时会首先 “Fetch” 算法（其实就是查询），然后内核会将该算法的实现提供给 EVP，然后用户通过 EVP 模块调用算法，EVP 在这个过程扮演了一个代理的角色。</p><p>这里只是简单介绍一下 Openssl3.0 的设计理念，其他具体的设计方案和代码示例，读者均可在 openssl 官网上查到，参考网址可见本节末尾，这里不再讨论。</p><p>我在这里特别说明一下：由于 Openssl 的代码量十分庞大，单一个加密算法库就有数十万行的代码，而且由于密码学博大精深，相关的数学原理更是晦涩难懂，笔者能力有限，不可能精通所有相关的知识，所以本系列的文章并不会针对 Openssl 的源码进行深入的讨论，我只会在用户层面对 Openssl 的加密算法库做一些常用的 API 解读，重在应用！如果涉及到我相对了解的知识，我会尽量无保留地分享，文章有错误的话在所难免，我也欢迎各位读者对我文中的错误进行批评指正！共同学习，共同进步！</p><p>作者假定各位读者已经熟练掌握 C 语言和有基本的密码学知识。</p><h2 id="1-2-编译和安装"><a href="#1-2-编译和安装" class="headerlink" title="1.2 编译和安装"></a>1.2 编译和安装</h2><p>Openssl 的编译十分简单，步骤如下：</p><p>（1）在官网下载 openssl3.0.1 版本，得到 openssl-3.0.1.tar.gz;<br>（2）输入 tar -zxvf openssl-3.0.1.tar.gz 解压 tar 包到当前目录；<br>（3）进入解压后的目录执行 .&#x2F;Configure 生成 Makefile 文件（openssl 默认安装到 &#x2F;usr&#x2F;local 下，如需指定安装路径，则执行 .&#x2F;Configure –prefix&#x3D;&#x2F;xxx&#x2F;xxx）；<br>（4）执行 make 编译；<br>（5）执行 make install 安装。</p><h2 id="1-3-常用的编译选项和配置"><a href="#1-3-常用的编译选项和配置" class="headerlink" title="1.3 常用的编译选项和配置"></a>1.3 常用的编译选项和配置</h2><p>默认编译生成 release 版本的共享库，如果要生成可调式的库，则输入 .&#x2F;Configure –debug，具体的编译选项请查询 INSTALL.md 文件。</p><h2 id="1-4-Openssl3-0-加密算法库目录结构"><a href="#1-4-Openssl3-0-加密算法库目录结构" class="headerlink" title="1.4 Openssl3.0 加密算法库目录结构"></a>1.4 Openssl3.0 加密算法库目录结构</h2><p>虽然我们的目标并不是完全精通 Openssl 的源码，但是了解其源代码目录的含义仍然是有必要的：</p><ul><li>aes: AES 对称算法实现</li><li>aria: ARIA 对称算法实现</li><li>asn1: ASN.1 编解码实现</li><li>aysnc: 异步线程池实现</li><li>bf: blowfish 对称算法实现</li><li>bio: I&#x2F;O 流的抽象</li><li>bn: 大数运算实现</li><li>buffer: 内存缓冲区</li><li>camellia: Camellia 块密码算法</li><li>cast: CAST 对称算法</li><li>chacha: ChaCha20 流密码算法</li><li>cmac: 基于分组密码的消息认证码</li><li>cmp: 证书管理协议</li><li>cms: 加密消息语法</li><li>comp: 压缩算法</li><li>conf: 配置文件管理</li><li>crmf: 暂时不确定这个是做什么的</li><li>ct: 证书透明化（Certificate Transparency）</li><li>des: des 对称算法</li><li>dh: 密钥交换协议</li><li>dsa: DSA签名算法</li><li>dso: 动态库管理</li><li>ec: 椭圆曲线算法</li><li>encode_decode: 编码和解码</li><li>engine: 引擎框架</li><li>err: 错误处理</li><li>ess: 增强安全服务（Enhanced Security Services）</li><li>evp: 高层算法接口</li><li>ffc: 有限域加密</li><li>hmac: 基于 hash 的消息鉴别码</li><li>http: http 协议实现</li><li>idea: 国际数据加密算法</li><li>kdf: 密钥派生函数</li><li>lhash: 哈希链表实现</li><li>md2: md2 摘要算法</li><li>md4: md4 摘要算法</li><li>md5: md5 摘要算法</li><li>mdc2: mdc2 摘要算法</li><li>modes: 对称算法的模式</li><li>objects: 对象管理</li><li>ocsp: 在线证书状态协议</li><li>pem: PEM 编解码实现</li><li>pkcs7: 加密签名消息语法标准 PKCS7 实现</li><li>pkcs12: 个人信息交换语法标准 PKCS12 实现</li><li>poly1305: Poly1305 消息认证码</li><li>property: 暂不清楚这个目录下的文件是做什么的</li><li>providers: 安全服务提供者，这个是 openssl3.0+ 最具特色的设计</li><li>rand: 随机数</li><li>rc2: RC2 对称算法</li><li>rc4: RC4 对称算法</li><li>rc5: RC5 对称算法</li><li>ripemd: RACE原始完整性校验消息摘要</li><li>rsa: RSA 非对称算法</li><li>seed: 基于随机种子的对称加密算法</li><li>sha: sha1、sha256、sha512等摘要算法实现</li><li>siphash: SipHash 摘要算法</li><li>sm2: 国密 sm2 椭圆曲线算法</li><li>sm3: 国密 sm3 摘要算法</li><li>sm4: 国密 sm4 分组加密算法</li><li>srp: 暂时不清楚是做什么的</li><li>stack: 栈的实现</li><li>store: 临时存储通道</li><li>ts: 可信时间？</li><li>txt_db: 基于文本的数据库</li><li>ui: 用户接口</li><li>whirlpool: Whirlpool 散列算法</li><li>x509: x509 证书系列标准实现</li></ul>]]></content>
+    <content type="html"><![CDATA[<p>提示：如果读者发现了本系列文章所述的问题和错误，笔者欢迎各位读者将建议发到笔者的电子邮箱 <a href="mailto:&#x68;&#x75;&#x6f;&#119;&#x65;&#x6e;&#106;&#x69;&#x65;&#x30;&#52;&#50;&#x37;&#64;&#115;&#105;&#x6e;&#x61;&#46;&#99;&#111;&#109;">&#x68;&#x75;&#x6f;&#119;&#x65;&#x6e;&#106;&#x69;&#x65;&#x30;&#52;&#50;&#x37;&#64;&#115;&#105;&#x6e;&#x61;&#46;&#99;&#111;&#109;</a>，我将不定时更正或优化。</p><span id="more"></span><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol><li><a href="https://www.openssl.org/">Openssl 官方网站</a></li><li><a href="https://docs.openssl.org/master/">Openssl 官方文档</a></li><li><a href="https://wiki.openssl.org/index.php/Main_Page">Openssl Wiki</a></li></ol><h2 id="1-1-简述"><a href="#1-1-简述" class="headerlink" title="1.1 简述"></a>1.1 简述</h2><p>Openssl 是一个免费开源的工具包，实现了 TLS&#x2F;SSL 协议和绝大多数的主流密码算法和标准，最初的版本由 Eric A. Young 和 Tim J. Hudson 创建，其官方网站为 <a href="www.openssl.org">www.openssl.org</a>。Openssl 主要包含三个部分：</p><ul><li>libssl  – TLS 协议的实现（RFC 8446）</li><li>libcrypto – 加密算法库，支持绝大多数密码算法，是实现 TLS 协议和 PKI 体系的基础</li><li>openssl – 命令行工具</li></ul><p>Openssl 当前主要的发布版本是 1.1.1，新开发的 Openssl3.0+ 相较于前者不论是架构体系还是设计理念都有了较大的变化。尽管 Openssl 团队发布声明会尽量将这次的版本升级的影响降至最低，但是不可避免的，用户在从 1.1.1 迁移至 3.0+ 仍然需要改动部份程序，并且需要重新编译应用程序。所以目前来看 Openssl3.0 这个版本并不兼容旧的版本，而且随着时间的推移会逐步将一大部分接口直接废弃，特别是那些贴近底层的 API。<br>Openssl 团队进一步优化了新版本架构，将各个模块的耦合性进一步降低，并且提供了一个叫 “Provider” 的模式用来管理其他的底层模块，实现动态的、可插拔的底层实现。而对于应用层而言，用户无需考虑各种底层实现，只需要专注于功能和应用，以下是 Openssl3.0 的整体架构设计图（所有的设计图片均摘录自 Openssl3.0 官方设计草案，见参考资料）：</p><p><img src="/image/2022/openssl-tutorials/OpensslDesign.png"></p><p>按照我的理解，“Provider” 是一个抽象的概念，更像是一个标准。每个不同的 “Provider” 按照相同的标准实现相应的底层算法和功能，然后通过 “Core” 模块直接 “装配” 到 Openssl 上，通过这种方式给顶层的应用程序提供密码服务。这样的设计增加了整体结构的灵活性，除了可以隔离应用层和底层，使底层的变化不至于大范围的影响应用层，还可以自己定制个性化的 “Provider” 以满足特殊的需求。<br>Openssl 3.0 的内核设计也是非常的有特色，内核可以缓存和调度各个 Provider, 使其可以各自独立地工作互不影响，并且它和 EVP API 模块有着非常紧密的联系，如图所示：</p><p><img src="/image/2022/openssl-tutorials/OpensslArch.png"></p><p>用户首先会通过内核加载 Provider，在加载 Provider 的时候内核会将该 Provider 的相关信息包括算法实现全部加载到缓存区域，用户在使用该 Provider 提供的算法时会首先 “Fetch” 算法（其实就是查询），然后内核会将该算法的实现提供给 EVP，然后用户通过 EVP 模块调用算法，EVP 在这个过程扮演了一个代理的角色。</p><p>这里只是简单介绍一下 Openssl3.0 的设计理念，其他具体的设计方案和代码示例，读者均可在 openssl 官网上查到，参考网址可见本节末尾，这里不再讨论。</p><p>我在这里特别说明一下：由于 Openssl 的代码量十分庞大，单一个加密算法库就有数十万行的代码，而且由于密码学博大精深，相关的数学原理更是晦涩难懂，笔者能力有限，不可能精通所有相关的知识，所以本系列的文章并不会针对 Openssl 的源码进行深入的讨论，我只会在用户层面对 Openssl 的加密算法库做一些常用的 API 解读，重在应用！如果涉及到我相对了解的知识，我会尽量无保留地分享，文章有错误的话在所难免，我也欢迎各位读者对我文中的错误进行批评指正！共同学习，共同进步！</p><p>作者假定各位读者已经熟练掌握 C 语言和有基本的密码学知识。</p><h2 id="1-2-编译和安装"><a href="#1-2-编译和安装" class="headerlink" title="1.2 编译和安装"></a>1.2 编译和安装</h2><p>Openssl 的编译十分简单，步骤如下：</p><p>（1）在官网下载 openssl3.0.1 版本，得到 openssl-3.0.1.tar.gz;<br>（2）输入 tar -zxvf openssl-3.0.1.tar.gz 解压 tar 包到当前目录；<br>（3）进入解压后的目录执行 .&#x2F;Configure 生成 Makefile 文件（openssl 默认安装到 &#x2F;usr&#x2F;local 下，如需指定安装路径，则执行 .&#x2F;Configure –prefix&#x3D;&#x2F;xxx&#x2F;xxx）；<br>（4）执行 make 编译；<br>（5）执行 make install 安装。</p><h2 id="1-3-常用的编译选项和配置"><a href="#1-3-常用的编译选项和配置" class="headerlink" title="1.3 常用的编译选项和配置"></a>1.3 常用的编译选项和配置</h2><p>默认编译生成 release 版本的共享库，如果要生成可调式的库，则输入 .&#x2F;Configure –debug，具体的编译选项请查询 INSTALL.md 文件。</p><h2 id="1-4-Openssl3-0-加密算法库目录结构"><a href="#1-4-Openssl3-0-加密算法库目录结构" class="headerlink" title="1.4 Openssl3.0 加密算法库目录结构"></a>1.4 Openssl3.0 加密算法库目录结构</h2><p>虽然我们的目标并不是完全精通 Openssl 的源码，但是了解其源代码目录的含义仍然是有必要的：</p><ul><li>aes: AES 对称算法实现</li><li>aria: ARIA 对称算法实现</li><li>asn1: ASN.1 编解码实现</li><li>aysnc: 异步线程池实现</li><li>bf: blowfish 对称算法实现</li><li>bio: I&#x2F;O 流的抽象</li><li>bn: 大数运算实现</li><li>buffer: 内存缓冲区</li><li>camellia: Camellia 块密码算法</li><li>cast: CAST 对称算法</li><li>chacha: ChaCha20 流密码算法</li><li>cmac: 基于分组密码的消息认证码</li><li>cmp: 证书管理协议</li><li>cms: 加密消息语法</li><li>comp: 压缩算法</li><li>conf: 配置文件管理</li><li>crmf: 暂时不确定这个是做什么的</li><li>ct: 证书透明化（Certificate Transparency）</li><li>des: des 对称算法</li><li>dh: 密钥交换协议</li><li>dsa: DSA签名算法</li><li>dso: 动态库管理</li><li>ec: 椭圆曲线算法</li><li>encode_decode: 编码和解码</li><li>engine: 引擎框架</li><li>err: 错误处理</li><li>ess: 增强安全服务（Enhanced Security Services）</li><li>evp: 高层算法接口</li><li>ffc: 有限域加密</li><li>hmac: 基于 hash 的消息鉴别码</li><li>http: http 协议实现</li><li>idea: 国际数据加密算法</li><li>kdf: 密钥派生函数</li><li>lhash: 哈希链表实现</li><li>md2: md2 摘要算法</li><li>md4: md4 摘要算法</li><li>md5: md5 摘要算法</li><li>mdc2: mdc2 摘要算法</li><li>modes: 对称算法的模式</li><li>objects: 对象管理</li><li>ocsp: 在线证书状态协议</li><li>pem: PEM 编解码实现</li><li>pkcs7: 加密签名消息语法标准 PKCS7 实现</li><li>pkcs12: 个人信息交换语法标准 PKCS12 实现</li><li>poly1305: Poly1305 消息认证码</li><li>property: 暂不清楚这个目录下的文件是做什么的</li><li>providers: 安全服务提供者，这个是 openssl3.0+ 最具特色的设计</li><li>rand: 随机数</li><li>rc2: RC2 对称算法</li><li>rc4: RC4 对称算法</li><li>rc5: RC5 对称算法</li><li>ripemd: RACE原始完整性校验消息摘要</li><li>rsa: RSA 非对称算法</li><li>seed: 基于随机种子的对称加密算法</li><li>sha: sha1、sha256、sha512等摘要算法实现</li><li>siphash: SipHash 摘要算法</li><li>sm2: 国密 sm2 椭圆曲线算法</li><li>sm3: 国密 sm3 摘要算法</li><li>sm4: 国密 sm4 分组加密算法</li><li>srp: 暂时不清楚是做什么的</li><li>stack: 栈的实现</li><li>store: 临时存储通道</li><li>ts: 可信时间？</li><li>txt_db: 基于文本的数据库</li><li>ui: 用户接口</li><li>whirlpool: Whirlpool 散列算法</li><li>x509: x509 证书系列标准实现</li></ul>]]></content>
     
     
     <categories>
@@ -454,9 +454,9 @@
     
     <tags>
       
-      <tag>Opengl</tag>
-      
       <tag>Programming</tag>
+      
+      <tag>Opengl</tag>
       
     </tags>
     
@@ -481,9 +481,9 @@
     
     <tags>
       
-      <tag>Programming</tag>
-      
       <tag>Linux</tag>
+      
+      <tag>Programming</tag>
       
     </tags>
     
@@ -508,9 +508,9 @@
     
     <tags>
       
-      <tag>Programming</tag>
-      
       <tag>Linux</tag>
+      
+      <tag>Programming</tag>
       
     </tags>
     
@@ -535,9 +535,9 @@
     
     <tags>
       
-      <tag>Programming</tag>
-      
       <tag>Linux</tag>
+      
+      <tag>Programming</tag>
       
     </tags>
     
