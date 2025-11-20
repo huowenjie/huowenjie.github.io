@@ -16,23 +16,35 @@
   <meta name="author" content="辽州小虾米">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Debian 系列及分支的安装包（.deb）的打包流程">
+    <meta name="description" content="本文主要记录 STM32F103C8T6 芯片在 MDK 仿真环境下采用内部 SRAM 启动程序并调试的方法。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux Deb 打包流程">
-<meta property="og:url" content="https://huowenjie.github.io/08/10/2020/linux-deb-pkg/index.html">
+<meta property="og:title" content="MDK 仿真环境下 STM32 RAM 调试方法">
+<meta property="og:url" content="https://huowenjie.github.io/07/17/2025/stm32-sram-debug/index.html">
 <meta property="og:site_name" content="辽州小虾米的博客">
-<meta property="og:description" content="Debian 系列及分支的安装包（.deb）的打包流程">
+<meta property="og:description" content="本文主要记录 STM32F103C8T6 芯片在 MDK 仿真环境下采用内部 SRAM 启动程序并调试的方法。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-08-10T09:46:00.000Z">
-<meta property="article:modified_time" content="2024-12-13T01:36:27.656Z">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug01.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug02.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug03.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug04.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug05.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug11.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug06.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug07.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug08.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug09.jpg">
+<meta property="og:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug10.jpg">
+<meta property="article:published_time" content="2025-07-17T13:03:00.000Z">
+<meta property="article:modified_time" content="2025-07-17T09:57:50.020Z">
 <meta property="article:author" content="辽州小虾米">
 <meta property="article:tag" content="Programming">
-<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Stm32">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://huowenjie.github.io/image/2025/stm32-sram-debug/new-debug01.jpg">
   
   
   
-  <title>Linux Deb 打包流程 - 辽州小虾米的博客</title>
+  <title>MDK 仿真环境下 STM32 RAM 调试方法 - 辽州小虾米的博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -198,7 +210,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Linux Deb 打包流程"></span>
+            <span id="subtitle" data-typed-text="MDK 仿真环境下 STM32 RAM 调试方法"></span>
           
         </div>
 
@@ -214,8 +226,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2020-08-10 17:46" pubdate>
-          2020年8月10日 下午
+        <time datetime="2025-07-17 21:03" pubdate>
+          2025年7月17日 晚上
         </time>
       </span>
     
@@ -226,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          305 字
+          703 字
         
       </span>
     
@@ -237,7 +249,7 @@
         
         
         
-          3 分钟
+          6 分钟
         
       </span>
     
@@ -274,43 +286,65 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Linux Deb 打包流程</h1>
+            <h1 id="seo-header">MDK 仿真环境下 STM32 RAM 调试方法</h1>
             
             
               <div class="markdown-body">
                 
-                <p>Debian 系列及分支的安装包（.deb）的打包流程</p>
+                <p>本文主要记录 STM32F103C8T6 芯片在 MDK 仿真环境下采用内部 SRAM 启动程序并调试的方法。</p>
 <span id="more"></span>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ol>
-<li>准备打包的二进制文件</li>
-<li>建立一个虚拟根目录，里面包含 DEBIAN 目录和软件安装路径，如下所示：</li>
+<h2 id="SRAM-调试的特点"><a href="#SRAM-调试的特点" class="headerlink" title="SRAM 调试的特点"></a>SRAM 调试的特点</h2><ol>
+<li>速度块，将代码下载到 SRAM 的速度远超 FLASH；</li>
+<li>理论无限次读写，增加芯片的使用寿命，在大量小批量修改代码并调试的场景，SRAM 调试方式可以显著增加调试效率，避免频繁擦写 FLASH；</li>
+<li>掉电会丢失数据；</li>
+<li>空间较小。</li>
 </ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs BASH">soft-name<br>    |--DEBIAN<br>    |       |--control<br>    |       |--postinst<br>    |       |--postrm<br>    |       |--preinst<br>    |       |--prerm<br>    |       |--copyright<br>    |<br>    |--opt<br>        |--softposition<br></code></pre></td></tr></table></figure>
+<h2 id="配置-STM32-SRAM-调试的步骤"><a href="#配置-STM32-SRAM-调试的步骤" class="headerlink" title="配置 STM32 SRAM 调试的步骤"></a>配置 STM32 SRAM 调试的步骤</h2><h3 id="BOOT-管脚的配置"><a href="#BOOT-管脚的配置" class="headerlink" title="BOOT 管脚的配置"></a>BOOT 管脚的配置</h3><p>STM32 CPU 从地址 0x00000000 获取堆栈顶的地址，并从启动存储器的 0x00000004 指示的地址开始执行代码。当 BOOT 模式配置为从 FLASH 存储器启动时，这两个地址分别被映射到 0x08000000 和 0x08000004。当 BOOT 模式配置为从内置 SRAM 启动时，这两个地址分别被映射到 0x20000000 和 0x20000004。BOOT 模式的配置如下：</p>
+<table>
+<thead>
+<tr>
+<th>BOOT1引脚</th>
+<th>BOOT0引脚</th>
+<th>启动模式</th>
+<th>映射地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>任意值</td>
+<td>0</td>
+<td>主闪存存储器</td>
+<td>0x08000000</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>系统存储器</td>
+<td>0x1FFFB000（互联型产品），0x1FFFF000（其他产品）</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>内置SRAM</td>
+<td>0x20000000</td>
+</tr>
+</tbody></table>
+<p>基于以上信息，若要使程序从 SRAM 启动，则需将芯片的 BOOT0 管脚和 BOOT1 管脚均接高电平。</p>
+<h3 id="在原有工程的基础上增加一个-DEBUG-配置版本"><a href="#在原有工程的基础上增加一个-DEBUG-配置版本" class="headerlink" title="在原有工程的基础上增加一个 DEBUG 配置版本"></a>在原有工程的基础上增加一个 DEBUG 配置版本</h3><p><img src="/image/2025/stm32-sram-debug/new-debug01.jpg" srcset="/img/loading.gif" lazyload> <img src="/image/2025/stm32-sram-debug/new-debug02.jpg" srcset="/img/loading.gif" lazyload> <img src="/image/2025/stm32-sram-debug/new-debug03.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>这样修改配置后不会影响原有项目的配置。</p>
+<h3 id="配置中断向量表"><a href="#配置中断向量表" class="headerlink" title="配置中断向量表"></a>配置中断向量表</h3><p>打开工程配置窗口，在C&#x2F;C++一栏指定默认的宏 VECT_TAB_SRAM 即可。</p>
+<p><img src="/image/2025/stm32-sram-debug/new-debug04.jpg" srcset="/img/loading.gif" lazyload></p>
+<h3 id="配置分散加载文件"><a href="#配置分散加载文件" class="headerlink" title="配置分散加载文件"></a>配置分散加载文件</h3><p>这步无需手动配置，打开工程配置界面在 Target 一栏中即可配置，同时还需要在 Linker 一栏中勾选 Use Memory Layout from Target Dialog 项目，用于分配只读存储区域和可读写数据区域。</p>
+<p><img src="/image/2025/stm32-sram-debug/new-debug05.jpg" srcset="/img/loading.gif" lazyload> <img src="/image/2025/stm32-sram-debug/new-debug11.jpg" srcset="/img/loading.gif" lazyload></p>
+<h3 id="配置调试下载初始化文件"><a href="#配置调试下载初始化文件" class="headerlink" title="配置调试下载初始化文件"></a>配置调试下载初始化文件</h3><p>打开工程配置窗口，切换到 Debug 一栏，取消勾选 Load Application at Startup 选项同时选择初始化文件。</p>
+<p><img src="/image/2025/stm32-sram-debug/new-debug06.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>初始化文件 stm32sram.ini 需要手动创建，该配置文件的内容为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">/***********************************************************/</span><br><span class="hljs-comment">/* Debug_RAM.ini: Initialization File for Debugging from Internal RAM */</span><br><span class="hljs-comment">/******************************************************/</span><br><span class="hljs-comment">/* This file is part of the uVision/ARM development tools. */</span><br><span class="hljs-comment">/* Copyright (c) 2005-2014 Keil Software. All rights reserved. */</span><br><span class="hljs-comment">/* This software may only be used under the terms of a valid, current, */</span><br><span class="hljs-comment">/* end user licence from KEIL for a compatible version of KEIL software */</span><br><span class="hljs-comment">/*development tools. Nothing else gives you the right to use this software */</span><br><span class="hljs-comment">/***************************************************/</span><br><br>FUNC <span class="hljs-type">void</span> <span class="hljs-title function_">Setup</span> <span class="hljs-params">(<span class="hljs-type">void</span>)</span> &#123;<br>SP = _RDWORD(<span class="hljs-number">0x20000000</span>);               <span class="hljs-comment">// 设置栈指针SP，把0x20000000地址中的内容赋值到SP。</span><br>PC = _RDWORD(<span class="hljs-number">0x20000004</span>);               <span class="hljs-comment">// 设置程序指针PC，把0x20000004地址中的内容赋值到PC。</span><br>_WDWORD(<span class="hljs-number">0xE000ED08</span>, <span class="hljs-number">0x20000000</span>);        <span class="hljs-comment">// Setup Vector Table Offset Register</span><br>&#125;<br><br>LOAD %L INCREMENTAL                     <span class="hljs-comment">// 下载 axf 文件到RAM</span><br>Setup();                                <span class="hljs-comment">//调用上面定义的 setup 函数设置运行环境</span><br></code></pre></td></tr></table></figure>
 
-<p>control 主要用来描述软件的版本，名称等详细信息，如下所示：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs BASH">Package:<br>Version:<br>Description:<br>Section:<br>Priority:<br>Architecture:<br>Installed-Size:<br>Depends:<br>Pre-Depends:<br>Maintainer:<br></code></pre></td></tr></table></figure>
-
-<ul>
-<li>Package – 软件包名称</li>
-<li>Version – 版本号</li>
-<li>Description – 软件描述</li>
-<li>Section – 软件类型 utils, net, mail, text, x11</li>
-<li>Priority – 软件对系统的重要程度，required, standard, optional, extra 等</li>
-<li>Architecture – 软件支持的平台，如 amd64 arm64 等</li>
-<li>Installed-Size – 软件尺寸</li>
-<li>Depends – 软件依赖的其他软件和库文件等，多个文件用逗号隔开</li>
-<li>Pre-Depends – 安装软件前需要安装的库或软件</li>
-<li>Maintainer – 打包者信息或者联系方式</li>
-</ul>
-<p>安装过程中各个脚本的调用次序如下, 这些脚本均为 bash shell：</p>
-<ul>
-<li>preinst 文件于软件包安装之前会被调用</li>
-<li>postinst 文件于软件包安装之后被调用</li>
-<li>prerm 文件于软件包卸载之前调用</li>
-<li>postrm 文件于软件包卸载之后调用</li>
-</ul>
-<h2 id="运行打包命令"><a href="#运行打包命令" class="headerlink" title="运行打包命令"></a>运行打包命令</h2><p>编写完脚本之后，运行：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs BASH">dpkg-deb -b soft-name soft-name.deb<br></code></pre></td></tr></table></figure>
+<h3 id="程序调试下载配置"><a href="#程序调试下载配置" class="headerlink" title="程序调试下载配置"></a>程序调试下载配置</h3><p>打开工程配置窗口，切换到 Debug 一栏，选择对应的调试器，然后点击 Setting 按钮，在打开的设置界面勾选 Verify Code DownLoad 和 DownLoad to Flash 两项。</p>
+<p><img src="/image/2025/stm32-sram-debug/new-debug07.jpg" srcset="/img/loading.gif" lazyload> <img src="/image/2025/stm32-sram-debug/new-debug08.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>在上一步打开的工程配置窗口 Debug-Setting 选择 Flash Download 一栏，在左上方选择 Do not Erase 选项，同时在右侧配置写入 SRAM 的地址信息，这里的信息必须和 Target 中配置的信息一致；</p>
+<p><img src="/image/2025/stm32-sram-debug/new-debug09.jpg" srcset="/img/loading.gif" lazyload> <img src="/image/2025/stm32-sram-debug/new-debug10.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>配置结束后，直接进行编译、调试程序即可。</p>
 
                 
               </div>
@@ -329,7 +363,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/" class="category-chain-item">软件开发总结</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" class="category-chain-item">嵌入式开发</a>
   
   
 
@@ -346,7 +380,7 @@
       
         <a href="/tags/Programming/" class="print-no-link">#Programming</a>
       
-        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+        <a href="/tags/Stm32/" class="print-no-link">#Stm32</a>
       
     </div>
   
@@ -358,8 +392,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Linux Deb 打包流程</div>
-      <div>https://huowenjie.github.io/08/10/2020/linux-deb-pkg/</div>
+      <div>MDK 仿真环境下 STM32 RAM 调试方法</div>
+      <div>https://huowenjie.github.io/07/17/2025/stm32-sram-debug/</div>
     </div>
     <div class="license-meta">
       
@@ -371,7 +405,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2020年8月10日</div>
+          <div>2025年7月17日</div>
         </div>
       
       
@@ -403,9 +437,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/09/30/2020/linux-gcc-opt/" title="Linux GCC 常用的编译、链接选项用法说明">
+                      <a href="/11/14/2025/story-fanren-mpl/" title="落云纪要-慕沛灵列传">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Linux GCC 常用的编译、链接选项用法说明</span>
+                        <span class="hidden-mobile">落云纪要-慕沛灵列传</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -413,8 +447,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/08/10/2020/linux-rpm-pkg/" title="Linux Rpm 打包流程">
-                        <span class="hidden-mobile">Linux Rpm 打包流程</span>
+                      <a href="/10/10/2022/shader-learn/" title="Shader 编程学习之路 -- 临摹">
+                        <span class="hidden-mobile">Shader 编程学习之路 -- 临摹</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
