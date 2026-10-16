@@ -24,7 +24,7 @@
 <meta property="og:description" content="本文主要汇总一些《电路基础》这本书描述的部分知识点，不间断更新。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-10-13T12:01:00.000Z">
-<meta property="article:modified_time" content="2026-10-13T09:38:07.171Z">
+<meta property="article:modified_time" content="2026-10-14T09:32:48.296Z">
 <meta property="article:author" content="辽州小虾米">
 <meta property="article:tag" content="Concepts">
 <meta property="article:tag" content="Knowledge">
@@ -226,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          487 字
+          1.8k 字
         
       </span>
     
@@ -237,7 +237,7 @@
         
         
         
-          5 分钟
+          16 分钟
         
       </span>
     
@@ -313,6 +313,90 @@
 <li>$v(t) &#x3D; Re(V e^{j\omega t})$，其中 $V &#x3D; V_m e^{j\phi} &#x3D; V_m \angle \phi$</li>
 </ul>
 <h3 id="电路元件的相量关系"><a href="#电路元件的相量关系" class="headerlink" title="电路元件的相量关系"></a>电路元件的相量关系</h3><h4 id="电阻"><a href="#电阻" class="headerlink" title="电阻"></a>电阻</h4><p>电阻在相量域中的电压电流关系服从欧姆定律。假设流过电阻R的电流为 $i &#x3D; I_m \cos(\omega t + \phi)$<br>由欧姆定律可知，其两段的电压为 $v &#x3D; iR &#x3D; RI_m\cos(\omega t + \phi)$<br>在相量域中表示为 $V &#x3D; RI_m \angle \phi$</p>
+<h4 id="电感"><a href="#电感" class="headerlink" title="电感"></a>电感</h4><p>对于电感而言，假设流过电感的电流为 $i &#x3D; I_m \cos(\omega t + \phi)$<br>则电感两端的电压为 $v &#x3D; L \frac{di}{dt} &#x3D; -\omega L I_m \sin(\omega t + \phi) &#x3D; \omega L I_m \cos(\omega t + \phi + \frac{\pi}{2})$<br>在相量域中表示则有 $V &#x3D; \omega L I_m \angle \phi + \frac{\pi}{2}$  </p>
+<p>令 $I &#x3D; I_m \angle \phi$ 且由欧拉恒等式得 $e^{j \frac{\pi}{2}} &#x3D; j$<br>故有 $V &#x3D; j \omega L I$</p>
+<h4 id="电容"><a href="#电容" class="headerlink" title="电容"></a>电容</h4><p>对于电容 C 而言, 假设电容两段的电压为 $v &#x3D; V_m \cos(\omega t + \phi)$<br>则流过电容的电流为 $i &#x3D; C \frac{dv}{dt} &#x3D; \omega C V_m \cos(\omega t + \phi + \frac{\pi}{2})$<br>在向量域中表示则有 $I &#x3D; \omega C V_m \angle \phi + \frac{\pi}{2}$  </p>
+<p>令 $V &#x3D; V_m \angle \phi$ 且由欧拉恒等式得 $e^{j \frac{\pi}{2}} &#x3D; j$<br>固有 $I &#x3D; j \omega C V$<br>则 $V &#x3D; \frac{I}{j \omega C}$</p>
+<h4 id="无源元件的相量关系"><a href="#无源元件的相量关系" class="headerlink" title="无源元件的相量关系"></a>无源元件的相量关系</h4><table>
+<thead>
+<tr>
+<th>电路元件</th>
+<th>时域</th>
+<th>相量域</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>电阻</td>
+<td>$v &#x3D; iR$</td>
+<td>$V &#x3D; IR$</td>
+</tr>
+<tr>
+<td>电感</td>
+<td>$v &#x3D; L \frac{di}{dt}$</td>
+<td>$V &#x3D; j \omega L I$</td>
+</tr>
+<tr>
+<td>电容</td>
+<td>$i &#x3D; C \frac{dv}{dt}$</td>
+<td>$I &#x3D; j \omega C V$</td>
+</tr>
+</tbody></table>
+<h3 id="阻抗与导纳"><a href="#阻抗与导纳" class="headerlink" title="阻抗与导纳"></a>阻抗与导纳</h3><h4 id="阻抗"><a href="#阻抗" class="headerlink" title="阻抗"></a>阻抗</h4><p>电路的阻抗是指相量电压 $V$ 和相量电流 $I$ 之比，单位欧姆($\Omega$)。</p>
+<h4 id="导纳"><a href="#导纳" class="headerlink" title="导纳"></a>导纳</h4><p>导纳为阻抗的倒数，单位西门子($S$)。</p>
+<h4 id="无源元件的阻抗与导纳"><a href="#无源元件的阻抗与导纳" class="headerlink" title="无源元件的阻抗与导纳"></a>无源元件的阻抗与导纳</h4><table>
+<thead>
+<tr>
+<th>电路元件</th>
+<th>阻抗</th>
+<th>导纳</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>电阻</td>
+<td>$Z &#x3D; R$</td>
+<td>$Y &#x3D; \frac{1}{R}$</td>
+</tr>
+<tr>
+<td>电感</td>
+<td>$Z &#x3D; j \omega L$</td>
+<td>$Y &#x3D; \frac{1}{j \omega L}$</td>
+</tr>
+<tr>
+<td>电容</td>
+<td>$Z &#x3D; \frac{1}{j \omega C}$</td>
+<td>$Y &#x3D; j \omega C$</td>
+</tr>
+</tbody></table>
+<h4 id="阻抗和导纳的直角坐标形式表达"><a href="#阻抗和导纳的直角坐标形式表达" class="headerlink" title="阻抗和导纳的直角坐标形式表达"></a>阻抗和导纳的直角坐标形式表达</h4><p>阻抗作为一个复数，可以用直角坐标形式表示为： $Z &#x3D; R + j X$<br>其中，R 为电阻，X 为电抗。  </p>
+<p>同理，导纳也可以用直角坐标形式表示： $Y &#x3D; G + j B$<br>其中，G 为电导，B 为电纳。</p>
+<h3 id="阻抗合并"><a href="#阻抗合并" class="headerlink" title="阻抗合并"></a>阻抗合并</h3><p>N个串联阻抗的等效阻抗，等于各个阻抗之和：$Z_{eq} &#x3D; Z_1 + Z_2 + Z_3 + Z_4 + \cdots + Z_N$  </p>
+<p>N个并联阻抗的等效阻抗，表示为：$\frac{1}{Z_{eq}} &#x3D; \frac{1}{Z_1} + \frac{1}{Z_2} + \frac{1}{Z_3} + \cdots + \frac{1}{Z_N}$<br>如果用导纳来表示，则有 $Y_{eq} &#x3D; Y_1 + Y_2 + Y_3 + Y_4 + \cdots + Y_N$</p>
+<h2 id="正弦稳态分析"><a href="#正弦稳态分析" class="headerlink" title="正弦稳态分析"></a>正弦稳态分析</h2><h3 id="分析方法"><a href="#分析方法" class="headerlink" title="分析方法"></a>分析方法</h3><ol>
+<li>将电路转换到相量域或频域；</li>
+<li>利用相应的电路分析方法（节点分析法、网孔分析法、叠加定理等）求解电路；</li>
+<li>将所求得的相量转换到时域；</li>
+<li>由于 KCL 和 KVL 在交流电路中也是有效的，求解时可以灵活运用基尔霍夫电流和电压定律。</li>
+</ol>
+<h2 id="交流功率分析"><a href="#交流功率分析" class="headerlink" title="交流功率分析"></a>交流功率分析</h2><h3 id="瞬时功率和平均功率"><a href="#瞬时功率和平均功率" class="headerlink" title="瞬时功率和平均功率"></a>瞬时功率和平均功率</h3><h4 id="瞬时功率的概念"><a href="#瞬时功率的概念" class="headerlink" title="瞬时功率的概念"></a>瞬时功率的概念</h4><p>瞬时功率是指任一瞬间的功率，单位为瓦特。瞬时功率是元件吸收能量的速率。<br>元件吸收的瞬时功率$p(t)$等于改元件两端的瞬时电压$v(t)$与流经该元件的瞬时电流i(t)的乘积。假设采用无源符号的国际惯例，则有：$p(t) &#x3D; v(t)i(t)$</p>
+<h4 id="瞬时功率的一般情况"><a href="#瞬时功率的一般情况" class="headerlink" title="瞬时功率的一般情况"></a>瞬时功率的一般情况</h4><p>设电路的终端电压和电流分别为：<br>$v(t) &#x3D; V_m \cos(\omega t + \theta_v)$<br>$i(t) &#x3D; I_m \cos(\omega t + \theta_i)$  </p>
+<p>由 $p(t) &#x3D; v(t)i(t)$ 和三角恒等式推得 $p(t) &#x3D; \frac{1}{2} V_m I_m \cos(\theta_v - \theta_i) + \frac{1}{2} V_m I_m \cos(2 \omega t + \theta_v + \theta_i)$<br>上式表明，瞬时功率包含与时间无关的常量部分和与时间有关的正弦函数部分，正弦函数的角频率为$2\omega$。</p>
+<p>瞬时功率随时间变化，一般难以测量。</p>
+<h4 id="平均功率的概念"><a href="#平均功率的概念" class="headerlink" title="平均功率的概念"></a>平均功率的概念</h4><p>平均功率是指一个周期内瞬时功率的平均值，单位瓦特。平均功率可以表示为 $P &#x3D; \frac{1}{T} \int_{0}^{T} p(t) dt &#x3D; \frac{1}{2} V_m I_m \cos(\theta_v - \theta_i)$<br>由上可知，平均功率与时间无关。</p>
+<p>电阻性负载(R)在任何时刻均吸收功率，而电抗负载(L或C)吸收的平均功率为零。</p>
+<h3 id="最大平均功率传输"><a href="#最大平均功率传输" class="headerlink" title="最大平均功率传输"></a>最大平均功率传输</h3><p>为了实现最大平均功率传输，负载阻抗必须满足$X_L &#x3D; -X_{Th}$ 且 $R_L &#x3D; -R_{Th}$，即：$Z_L &#x3D; R_L + j X_L &#x3D; R_{Th} - j X_{Th} &#x3D; Z_{Th}^{*}$，故作如下描述：<br>对于最大平均功率传输而言，负载阻抗 Z_L 必须等于戴维南阻抗 Z_{Th} 的共轭复数。当$R_L &#x3D; R_{Th}且X_L &#x3D; -X_{Th}$时，得到最大平均功率：$P_{max} &#x3D; \frac{|V_{Th}| ^ 2}{8 R_{Th}}$<br>在负载为纯实数的情况下，令 $X_L &#x3D; 0$，得到最大功率传输条件为：$R_L &#x3D; \sqrt{R_{Th}^2 + X_{Th} ^ 2} &#x3D; |Z_{Th}|$，负载阻抗（电阻）等于戴维南阻抗的模。</p>
+<h3 id="有效值"><a href="#有效值" class="headerlink" title="有效值"></a>有效值</h3><p>周期性信号的有效值就是它的方均根值（rms）。 如下所示：    </p>
+<ul>
+<li>$I_{eff} &#x3D; \sqrt{\frac{1}{T} \int_{0} ^ {T} i^2 dt}$ &emsp; 周期性电流的有效值</li>
+<li>$V_{eff} &#x3D; \sqrt{\frac{1}{T} \int_{0} ^ {T} v^2 dt}$ &emsp; 交流电压的有效值</li>
+<li>$X_{rms} &#x3D; \sqrt{\frac{1}{T} \int_{0} ^ {T} x^2 dt}$ &emsp; 周期性信号的方均根</li>
+</ul>
+<p>对于正弦信号 $i(t) &#x3D; I_m \cos(\omega t)$ 和 $v(t) &#x3D; V_m \cos(\omega t)$，有：  </p>
+<ul>
+<li>$I_{rms} &#x3D; \frac{I_m}{\sqrt{2}}$</li>
+<li>$V_{rms} &#x3D; \frac{V_m}{\sqrt{2}}$</li>
+</ul>
+<h2 id="频率响应"><a href="#频率响应" class="headerlink" title="频率响应"></a>频率响应</h2><h3 id="频率响应的概念"><a href="#频率响应的概念" class="headerlink" title="频率响应的概念"></a>频率响应的概念</h3><p>电路的频率响应是指电路的行为特征随信号频率变化而发生的变化。</p>
+<h3 id="传递函数"><a href="#传递函数" class="headerlink" title="传递函数"></a>传递函数</h3><p>电路的传递函数$H(\omega)$是随着频率而变化的输出相量$Y(\omega)$（元件的电压或电流）与输入相量$X(\omega)$（源电压或电流）之比。<br>传递函数一般表示为： $H(\omega) &#x3D; \frac{Y(\omega)}{X(\omega)}$</p>
 
                 
               </div>
