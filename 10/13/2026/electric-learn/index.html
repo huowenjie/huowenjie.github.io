@@ -27,7 +27,7 @@
 <meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-02.png">
 <meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-03.png">
 <meta property="article:published_time" content="2026-10-13T12:01:00.000Z">
-<meta property="article:modified_time" content="2026-11-05T03:27:27.754Z">
+<meta property="article:modified_time" content="2026-11-05T09:41:25.782Z">
 <meta property="article:author" content="遼州小蝦米">
 <meta property="article:tag" content="Concepts">
 <meta property="article:tag" content="Knowledge">
@@ -230,7 +230,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.8k 字
+          3.3k 字
         
       </span>
     
@@ -241,7 +241,7 @@
         
         
         
-          24 分钟
+          28 分钟
         
       </span>
     
@@ -534,6 +534,83 @@
 </tbody></table>
 <p>亦可參考下圖來輔助理解（注：圖中”雙極電晶體”即爲雙極型晶體管）：</p>
 <p><img src="/image/2026/electric-learn/bjt-03.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="不同組態下，輸入輸出端口的伏安特性分析方案"><a href="#不同組態下，輸入輸出端口的伏安特性分析方案" class="headerlink" title="不同組態下，輸入輸出端口的伏安特性分析方案"></a>不同組態下，輸入輸出端口的伏安特性分析方案</h4><p>對於共射組態，輸入端口為 B，輸出端口為 C，如果要關注輸入端口伏安特性，則需建立 $I_B-V_{BE}$ 關係模型；同理若關注輸出端口伏安特性，則建立 $I_C-V_{CE}$ 關係模型。總結如下：</p>
+<table>
+<thead>
+<tr>
+<th>端口特性</th>
+<th>電流-電壓關係模型</th>
+<th>參變量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>輸入特性</td>
+<td>$I_B-V_{BE}$</td>
+<td>$V_{CE}$ (輸出端口電壓)</td>
+</tr>
+<tr>
+<td>輸出特性</td>
+<td>$I_C-V_{CE}$</td>
+<td>$I_B$ (輸入端口電流)</td>
+</tr>
+<tr>
+<td>轉移特性</td>
+<td>$I_C-V_{BE}$</td>
+<td>$V_{CE}$ (輸出端口電壓)</td>
+</tr>
+</tbody></table>
+<p>同理，對於共基組態，總結如下：</p>
+<table>
+<thead>
+<tr>
+<th>端口特性</th>
+<th>電流-電壓關係模型</th>
+<th>參變量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>輸入特性</td>
+<td>$I_E-V_{EB}$</td>
+<td>$V_{CB}$ (輸出端口電壓)</td>
+</tr>
+<tr>
+<td>輸出特性</td>
+<td>$I_C-V_{CB}$</td>
+<td>$I_E$ (輸入端口電流)</td>
+</tr>
+<tr>
+<td>轉移特性</td>
+<td>$I_C-V_{EB}$</td>
+<td>$V_{CB}$ (輸出端口電壓)</td>
+</tr>
+</tbody></table>
+<p>最後，對於共集組態，總結如下：</p>
+<table>
+<thead>
+<tr>
+<th>端口特性</th>
+<th>電流-電壓關係模型</th>
+<th>參變量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>輸入特性</td>
+<td>$I_B-V_{BC}$</td>
+<td>$V_{EC}$ (輸出端口電壓)</td>
+</tr>
+<tr>
+<td>輸出特性</td>
+<td>$I_E-V_{EC}$</td>
+<td>$I_B$ (輸入端口電流)</td>
+</tr>
+<tr>
+<td>轉移特性</td>
+<td>$I_E-V_{BC}$</td>
+<td>$V_{EC}$ (輸出端口電壓)</td>
+</tr>
+</tbody></table>
+<h3 id="BJT-作爲放大器和開關的應用"><a href="#BJT-作爲放大器和開關的應用" class="headerlink" title="BJT 作爲放大器和開關的應用"></a>BJT 作爲放大器和開關的應用</h3><h4 id="放大器應用"><a href="#放大器應用" class="headerlink" title="放大器應用"></a>放大器應用</h4><p>由於基級和發射極之間的電壓$V_{BE}$的變化將導致集電極電流$i_C$的變化，故當 BJT 工作在放大模式時，相當於一個電壓控制電流源。</p>
+<p>且由於晶體管的具有高度非綫性特徵，故此應尋找一種方法將其約束在綫性工作區間内，方便實際的運算。具體來説，可先將 BJT 進行偏置使其工作在一定區間，然後再將所要放大的信號$V_{be}$（該信號需足夠小,使其<br>可近似於工作在綫性區間内）叠加至直流電壓$V_{BE}$上，所以，集電極電流$i_c$的變化與$v_be$呈綫性相關。</p>
 
                 
               </div>
