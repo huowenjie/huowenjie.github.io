@@ -26,8 +26,13 @@
 <meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-01.png">
 <meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-02.png">
 <meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-03.png">
+<meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-04.png">
+<meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-05.png">
+<meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-06.png">
+<meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-07.png">
+<meta property="og:image" content="https://huowenjie.github.io/image/2026/electric-learn/bjt-08.png">
 <meta property="article:published_time" content="2026-10-13T12:01:00.000Z">
-<meta property="article:modified_time" content="2026-11-05T09:41:25.782Z">
+<meta property="article:modified_time" content="2026-11-06T08:59:26.904Z">
 <meta property="article:author" content="遼州小蝦米">
 <meta property="article:tag" content="Concepts">
 <meta property="article:tag" content="Knowledge">
@@ -230,7 +235,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.3k 字
+          3.8k 字
         
       </span>
     
@@ -241,7 +246,7 @@
         
         
         
-          28 分钟
+          32 分钟
         
       </span>
     
@@ -469,12 +474,12 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>集電級電流</td>
+<td>集電極電流</td>
 <td>$I_C &#x3D; I_Se^{\frac{V_{BE}}{V_T}}$</td>
 <td>$I_C &#x3D; I_Se^{\frac{V_{EB}}{V_T}}$</td>
 </tr>
 <tr>
-<td>基級電流</td>
+<td>基極電流</td>
 <td>$I_B &#x3D; \dfrac{I_C}{\beta}$</td>
 <td>$I_B &#x3D; \dfrac{I_C}{\beta}$</td>
 </tr>
@@ -515,14 +520,14 @@
 <td>發射極E</td>
 <td>B-E</td>
 <td>C-E</td>
-<td>基級B輸入，集電極C輸出</td>
+<td>基極B輸入，集電極C輸出</td>
 </tr>
 <tr>
 <td>共集(CC)</td>
-<td>集電級C</td>
+<td>集電極C</td>
 <td>B-C</td>
 <td>E-C</td>
-<td>基級B輸入，發射極E輸出</td>
+<td>基極B輸入，發射極E輸出</td>
 </tr>
 <tr>
 <td>共基(CB)</td>
@@ -609,9 +614,22 @@
 <td>$V_{EC}$ (輸出端口電壓)</td>
 </tr>
 </tbody></table>
-<h3 id="BJT-作爲放大器和開關的應用"><a href="#BJT-作爲放大器和開關的應用" class="headerlink" title="BJT 作爲放大器和開關的應用"></a>BJT 作爲放大器和開關的應用</h3><h4 id="放大器應用"><a href="#放大器應用" class="headerlink" title="放大器應用"></a>放大器應用</h4><p>由於基級和發射極之間的電壓$V_{BE}$的變化將導致集電極電流$i_C$的變化，故當 BJT 工作在放大模式時，相當於一個電壓控制電流源。</p>
-<p>且由於晶體管的具有高度非綫性特徵，故此應尋找一種方法將其約束在綫性工作區間内，方便實際的運算。具體來説，可先將 BJT 進行偏置使其工作在一定區間，然後再將所要放大的信號$V_{be}$（該信號需足夠小,使其<br>可近似於工作在綫性區間内）叠加至直流電壓$V_{BE}$上，所以，集電極電流$i_c$的變化與$v_be$呈綫性相關。</p>
-
+<h3 id="BJT-作爲放大器和開關的應用"><a href="#BJT-作爲放大器和開關的應用" class="headerlink" title="BJT 作爲放大器和開關的應用"></a>BJT 作爲放大器和開關的應用</h3><h4 id="放大器應用"><a href="#放大器應用" class="headerlink" title="放大器應用"></a>放大器應用</h4><p>由於基極和發射極之間的電壓$V_{BE}$的變化將導致集電極電流$i_C$的變化，故當 BJT 工作在放大模式時，相當於一個電壓控制電流源。</p>
+<p>且由於晶體管具有高度非綫性特徵，故此應尋找一種方法將其約束在綫性工作區間内，方便實際的運算。具體來説，可先將 BJT 進行偏置使其工作在一定區間，然後再將所要放大的信號$V_{be}$（該信號需足夠小,使其<br>可近似於工作在綫性區間内）叠加至直流電壓$V_{BE}$上，所以，集電極電流$i_c$的變化與$v_be$呈綫性相關。</p>
+<p>基本的共射極電路如圖所示：<br><img src="/image/2026/electric-learn/bjt-04.png" srcset="/img/loading.gif" lazyload></p>
+<p>那麽仿真時電路如何搭建，參數如何調試？按照我當前的理解，可以先按照基本的共射級電路搭建一個最小化的、以BJT為核心的LTSpice仿真電路：<br><img src="/image/2026/electric-learn/bjt-05.png" srcset="/img/loading.gif" lazyload></p>
+<p>參數可以隨意指定，電源$V_{CC}$(V1)采用5V直流電源，$V_{BE}$(V2)則暫定為 0.1V 直流電源作爲偏置，C端串聯一個電阻R1，用於實現輸出電壓放大並限制電流；<br>B端口亦串聯一個電阻，用於建立直流偏置，方便設定靜態工作點。兩個電阻值均初始設定為1k，BJT采用流行的2N3904作爲型號。</p>
+<p>因爲要構造一個理想 Q 點，所以第一步先要讓電路工作在放大區域。然後第二步調整電路中的各個原件的參數使 $V_{CE}\approx\dfrac{V_{CC}}{2}$且各個端口的電流電壓均不超過BJT標定的各項限制值<br>假定BJT的B-E端的導通壓降為0.7V，$\beta$取150，然後依次做以下工作：</p>
+<ul>
+<li>先預設$V_{BE} &#x3D; 0.7V$，電源 $V_1 &#x3D; 5V$，那麽目標就是讓$V_{CE} &#x3D; 2.5V$</li>
+<li>當$V_{CE} &#x3D; 2.5V$，那麽$I_C &#x3D; \dfrac{2.5V}{1k\Omega} &#x3D; 1.25mA$ 假定值亦為超過 BJT 的限定</li>
+<li>當$I_C &#x3D; 1.25mA$，通過 $\beta$ 求得 $I_B &#x3D; \dfrac{I_C}{\beta} &#x3D; \dfrac{1.25mA}{150}\approx 8.33 uA$</li>
+<li>由於必須要使 BE 正偏，所以 $V_2$ 可以設置的高一些比如 $0.8V$，然後再求偏置電阻 $R_2 &#x3D; \dfrac{V_2 - V_{BE}}{I_B} &#x3D; \dfrac{0.8V - 0.7V}{8.33 uA} \approx 12 k\Omega$</li>
+</ul>
+<p>所以可以采用以上步驟先標定一個預估的值來進行仿真：<br><img src="/image/2026/electric-learn/bjt-06.png" srcset="/img/loading.gif" lazyload></p>
+<p>按照仿真結果，測出 $V_C \approx 2.06V$，比假定理想的值小了 0.5V，故可以適當增大 $R_2$ 以令 $I_B$ 減小，且 $I_C$ 也會減小，最終使得$V_C$增大。</p>
+<p>通過調整 $R_2$ 會得到一個比較理想的狀態，然後再叠加一個交流小電壓電源，即可使其在工作點Q附近實現對交流電信號的放大：<br><img src="/image/2026/electric-learn/bjt-07.png" srcset="/img/loading.gif" lazyload> <img src="/image/2026/electric-learn/bjt-08.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="開關應用"><a href="#開關應用" class="headerlink" title="開關應用"></a>開關應用</h4>
                 
               </div>
             

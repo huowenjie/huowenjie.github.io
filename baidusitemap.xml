@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://huowenjie.github.io/10/13/2026/electric-learn/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
   </url>
   <url>
     <loc>https://huowenjie.github.io/backup/2025/story-fanren-mpl.html</loc>
@@ -13,7 +13,7 @@
     <lastmod>2025-07-17</lastmod>
   </url>
   <url>
-    <loc>https://huowenjie.github.io/08/10/2020/linux-deb-pkg/</loc>
+    <loc>https://huowenjie.github.io/09/30/2020/linux-gcc-opt/</loc>
     <lastmod>2024-12-13</lastmod>
   </url>
   <url>
@@ -21,7 +21,7 @@
     <lastmod>2024-12-13</lastmod>
   </url>
   <url>
-    <loc>https://huowenjie.github.io/09/30/2020/linux-gcc-opt/</loc>
+    <loc>https://huowenjie.github.io/08/10/2020/linux-deb-pkg/</loc>
     <lastmod>2024-12-13</lastmod>
   </url>
   <url>
@@ -37,11 +37,11 @@
     <lastmod>2024-12-13</lastmod>
   </url>
   <url>
-    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials02.html</loc>
+    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials03.html</loc>
     <lastmod>2024-12-13</lastmod>
   </url>
   <url>
-    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials03.html</loc>
+    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials02.html</loc>
     <lastmod>2024-12-13</lastmod>
   </url>
   <url>
@@ -65,6 +65,14 @@
     <lastmod>2024-12-13</lastmod>
   </url>
   <url>
+    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials09.html</loc>
+    <lastmod>2024-12-13</lastmod>
+  </url>
+  <url>
+    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials10.html</loc>
+    <lastmod>2024-12-13</lastmod>
+  </url>
+  <url>
     <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials11.html</loc>
     <lastmod>2024-12-13</lastmod>
   </url>
@@ -73,15 +81,7 @@
     <lastmod>2024-12-13</lastmod>
   </url>
   <url>
-    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials09.html</loc>
-    <lastmod>2024-12-13</lastmod>
-  </url>
-  <url>
     <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials13.html</loc>
-    <lastmod>2024-12-13</lastmod>
-  </url>
-  <url>
-    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials10.html</loc>
     <lastmod>2024-12-13</lastmod>
   </url>
 </urlset> 

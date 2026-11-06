@@ -4,7 +4,7 @@
   <url>
     <loc>https://huowenjie.github.io/10/13/2026/electric-learn/</loc>
     
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -29,7 +29,7 @@
   </url>
   
   <url>
-    <loc>https://huowenjie.github.io/08/10/2020/linux-deb-pkg/</loc>
+    <loc>https://huowenjie.github.io/09/30/2020/linux-gcc-opt/</loc>
     
     <lastmod>2024-12-13</lastmod>
     
@@ -47,7 +47,7 @@
   </url>
   
   <url>
-    <loc>https://huowenjie.github.io/09/30/2020/linux-gcc-opt/</loc>
+    <loc>https://huowenjie.github.io/08/10/2020/linux-deb-pkg/</loc>
     
     <lastmod>2024-12-13</lastmod>
     
@@ -92,7 +92,7 @@
   </url>
   
   <url>
-    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials02.html</loc>
+    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials03.html</loc>
     
     <lastmod>2024-12-13</lastmod>
     
@@ -101,7 +101,7 @@
   </url>
   
   <url>
-    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials03.html</loc>
+    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials02.html</loc>
     
     <lastmod>2024-12-13</lastmod>
     
@@ -155,6 +155,24 @@
   </url>
   
   <url>
+    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials09.html</loc>
+    
+    <lastmod>2024-12-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials10.html</loc>
+    
+    <lastmod>2024-12-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials11.html</loc>
     
     <lastmod>2024-12-13</lastmod>
@@ -173,25 +191,7 @@
   </url>
   
   <url>
-    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials09.html</loc>
-    
-    <lastmod>2024-12-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials13.html</loc>
-    
-    <lastmod>2024-12-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://huowenjie.github.io/backup/2022/openssl-tutorials10.html</loc>
     
     <lastmod>2024-12-13</lastmod>
     
@@ -202,7 +202,7 @@
 
   <url>
     <loc>https://huowenjie.github.io/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -210,49 +210,49 @@
   
   <url>
     <loc>https://huowenjie.github.io/tags/Linux/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://huowenjie.github.io/tags/Programming/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://huowenjie.github.io/tags/Opengl/</loc>
-    <lastmod>2026-11-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://huowenjie.github.io/tags/Stm32/</loc>
-    <lastmod>2026-11-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://huowenjie.github.io/tags/Concepts/</loc>
-    <lastmod>2026-11-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://huowenjie.github.io/tags/Knowledge/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://huowenjie.github.io/tags/Shader/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://huowenjie.github.io/tags/Concepts/</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://huowenjie.github.io/tags/Knowledge/</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://huowenjie.github.io/tags/Stm32/</loc>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -261,35 +261,35 @@
   
   <url>
     <loc>https://huowenjie.github.io/categories/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://huowenjie.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/</loc>
-    <lastmod>2026-11-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://huowenjie.github.io/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://huowenjie.github.io/categories/%E9%9B%BB%E8%B7%AF%E5%88%86%E6%9E%90/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://huowenjie.github.io/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/</loc>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://huowenjie.github.io/categories/%E9%9B%BB%E8%B7%AF%E5%88%86%E6%9E%90/%E6%A8%A1%E6%93%AC%E9%9B%BB%E8%B7%AF/</loc>
-    <lastmod>2026-11-05</lastmod>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
